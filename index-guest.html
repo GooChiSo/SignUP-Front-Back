@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SIGN UP! — 시작하기</title>
+  <!-- Pretendard -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #eefaf2;
+      --title: #2f8057;
+      --text: #356a55;
+      --muted: #6c8f7f;
+      --green-from: #4cc06a;
+      --green-to: #2c9b55;
+      --shadow: 0 14px 28px rgba(0, 0, 0, .12), 0 10px 10px rgba(0, 0, 0, .08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 50% 0%, #f5fff9 0%, var(--bg) 60%) fixed,
+        linear-gradient(0deg, #f6fff8, var(--bg)) fixed;
+    }
+
+    .frame {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: 1fr auto 2fr;
+      place-items: center;
+      padding: clamp(16px, 3vw, 40px);
+    }
+
+    .hero {
+      text-align: center;
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+    }
+
+    .title {
+      font-weight: 900;
+      letter-spacing: .6px;
+      color: var(--title);
+      font-size: clamp(38px, 7.6vw, 80px);
+      line-height: 1.05;
+      margin: 0 0 12px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: clamp(14px, 2.2vw, 20px);
+      margin: 0 0 36px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: min(520px, 90vw);
+      margin: 0 auto;
+    }
+
+    .cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 84px;
+      padding: 18px 22px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: clamp(16px, 2.4vw, 18px);
+      box-shadow: var(--shadow);
+      transition: transform .12s ease, filter .2s ease;
+      border: 0;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+    }
+
+    .cta:active {
+      transform: translateY(0);
+      filter: brightness(.98);
+    }
+
+    /* 로그인: 녹색 버튼 */
+    .cta--login {
+      color: #fff;
+      background: linear-gradient(180deg, var(--green-from), var(--green-to));
+    }
+
+    /* 회원가입: 흰색 버튼 */
+    .cta--signup {
+      color: var(--title);
+      background: #ffffff;
+    }
+
+    .frame::before {
+      content: "";
+      position: fixed;
+      inset: 10px;
+      border-radius: 18px;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04), inset 0 0 0 8px rgba(255, 255, 255, .55);
+      mix-blend-mode: multiply;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="frame" aria-labelledby="title">
+    <div aria-hidden="true"></div>
+
+    <section class="hero">
+      <h1 id="title" class="title">SIGN UP!</h1>
+      <p class="subtitle">즐겁게 배우는 수화!</p>
+
+      <div class="stack">
+        <button class="cta cta--login" data-action="login">로그인하여 이어서 플레이하기</button>
+        <button class="cta cta--signup" data-action="signup">회원가입하여 새로 시작하기</button>
+      </div>
+    </section>
+
+    <div aria-hidden="true"></div>
+  </main>
+
+  <script>
+    // 후속 페이지 경로 받기 전까지 동작만 로그로 남김
+    document.querySelectorAll('.cta').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('[GUEST] click:', btn.dataset.action);
+        // TODO: 너가 주는 경로에 맞춰 href/이동 연결
+      });
+    });
+  </script>
+</body>
+
+</html>

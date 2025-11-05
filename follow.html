@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SIGN UP! — 날 따라해봐요</title>
+  <style>
+    :root {
+      --bg0: #f3fff7;
+      --bg1: #e9f8ef;
+      --ink: #1f5845;
+      --muted: #7e9b90;
+      --good: #2ecc71;
+      --ok: #2fa8ff;
+      --nb: #f1c40f;
+      --bad: #ff6b6b;
+      --card: rgba(255, 255, 255, .5);
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 50% 30%, var(--bg0), var(--bg1));
+      color: var(--ink);
+    }
+
+    /* Top bar */
+    .topbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #98b3aa;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    /* Game stage */
+    .stage {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 20px 28px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      min-height: calc(100vh - 120px);
+    }
+
+    /* Character slots (아바타/나) */
+    .slot {
+      position: relative;
+      aspect-ratio: 16/10;
+      /* 비율만 유지, 실제론 투명 PNG가 올 것 */
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: visible;
+      /* 누끼 이미지가 밖으로 나가도 보이게 */
+    }
+
+    .slot .label {
+      position: absolute;
+      top: -14px;
+      left: 12px;
+      background: var(--card);
+      backdrop-filter: blur(6px);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .05);
+    }
+
+    /* 더미 아바타: 투명 배경 PNG가 오기 전까지 임시 실루엣 */
+    .dummy {
+      width: min(60%, 420px);
+      filter: drop-shadow(0 14px 24px rgba(0, 0, 0, .12));
+      opacity: .95;
+      animation: idle 2.4s ease-in-out infinite;
+    }
+
+    @keyframes idle {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-6px)
+      }
+    }
+
+    /* HUD */
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      place-items: center;
+    }
+
+    .score-total {
+      position: fixed;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+      font-size: 18px;
+    }
+
+    .score-total .big {
+      font-size: 28px;
+      margin-left: 6px
+    }
+
+    .combo {
+      position: fixed;
+      top: 72px;
+      right: 24px;
+      font-weight: 900;
+      font-size: 18px;
+      color: #2fa06d;
+      text-shadow: 0 3px 12px rgba(47, 160, 109, .25);
+      opacity: .9;
+      transform-origin: right top;
+    }
+
+    .combo.bump {
+      animation: bump .25s ease
+    }
+
+    @keyframes bump {
+      0% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(1.2)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    /* 중앙 판정/이펙트 */
+    .fx-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .judge {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -50%) scale(0.8);
+      padding: 12px 26px;
+      border-radius: 999px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: .8px;
+      opacity: 0;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, .18));
+      animation: pop 560ms ease forwards;
+    }
+
+    .judge.perfect {
+      background: linear-gradient(135deg, var(--good), #1fbf7a)
+    }
+
+    .judge.ok {
+      background: linear-gradient(135deg, var(--ok), #1d7dd4)
+    }
+
+    .judge.nb {
+      background: linear-gradient(135deg, var(--nb), #e7a90a);
+      color: #553a00
+    }
+
+    .judge.bad {
+      background: linear-gradient(135deg, var(--bad), #d64545)
+    }
+
+    @keyframes pop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.7)
+      }
+
+      45% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05)
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(.9)
+      }
+    }
+
+    /* +포인트 떠오르는 효과 */
+    .pts {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      transform: translateX(-50%);
+      color: #194a39;
+      font-weight: 800;
+      background: rgba(255, 255, 255, .7);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      padding: 6px 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+      animation: rise 900ms ease forwards;
+    }
+
+    @keyframes rise {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 10px)
+      }
+
+      20% {
+        opacity: 1
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -30px)
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 980px) {
+      .stage {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .slot {
+        aspect-ratio: 16/12
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div>날 따라해봐요 데모</div>
+  </div>
+
+  <div class="score-total" aria-live="polite">TOTAL<span class="big" id="total">0</span> pt</div>
+  <div class="combo" id="combo">Combo x0</div>
+
+  <main class="stage" aria-label="게임 스테이지">
+    <!-- 아바타 (정식에선 투명 PNG/애니메이션) -->
+    <section class="slot" aria-label="아바타">
+      <span class="label">아바타</span>
+      <!-- 더미 실루엣: PNG 교체 예정 -->
+      <svg class="dummy" viewBox="0 0 300 420" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3ad57d" />
+            <stop offset="1" stop-color="#2aa064" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#g1)"
+          d="M150 70c30 0 54-24 54-54S180 0 150 0s-54 24-54 54 24 54 54 54Zm0 36c-64 0-116 52-116 116v16c0 20 16 36 36 36h160c20 0 36-16 36-36v-16c0-64-52-116-116-116Z" />
+      </svg>
+    </section>
+
+    <!-- 나 (웹캠/영상 피드로 교체 예정) -->
+    <section class="slot" aria-label="나">
+      <span class="label">나</span>
+      <svg class="dummy" viewBox="0 0 300 420" aria-hidden="true">
+        <!-- <defs>
+          <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2db28a" />
+            <stop offset="1" stop-color="#2f7e67" />
+          </linearGradient>
+        </defs> -->
+        <path fill="url(#g2)"
+          d="M150 66c28 0 50-22 50-50S178 0 150 0s-50 22-50 50 22 50 50 50Zm0 38c-62 0-112 50-112 112v18c0 18 14 32 32 32h160c18 0 32-14 32-32v-18c0-62-50-112-112-112Z" />
+      </svg>
+    </section>
+  </main>
+
+  <!-- 이펙트 레이어 -->
+  <div class="fx-layer" id="fx"></div>
+
+  <!-- 데모용 컨트롤 (백엔드 붙일 땐 제거/숨김) -->
+  <div class="demo" role="group" aria-label="데모 컨트롤">
+    <div class="row">
+      <button data-j="perfect">Perfect</button>
+      <button data-j="ok">OK</button>
+      <button data-j="nb">Not&nbsp;Bad</button>
+      <button data-j="bad">Bad</button>
+    </div>
+    <div class="row">
+      <small>accuracy</small>
+      <input id="acc" type="range" min="0" max="100" value="86">
+      <button id="useAcc">판정</button>
+    </div>
+  </div>
+
+  <script>
+    /* ================================
+       점수/판정 시스템 (프론트 HUD)
+       - 백엔드에서 정확도 계산 후 window.reportAccuracy(0~1) 호출
+       ================================ */
+
+    const SCORE_MAP = {
+      perfect: 30,
+      ok: 15,
+      nb: 8,
+      bad: 0,
+    };
+
+    // accuracy(0~1)을 판정으로 매핑 (원하면 임계값 조정)
+    function judgeFromAccuracy(a) {
+      if (a >= 0.90) return 'perfect';
+      if (a >= 0.75) return 'ok';
+      if (a >= 0.60) return 'nb';
+      return 'bad';
+    }
+
+    let total = 0;
+    let combo = 0;
+
+    const fx = document.getElementById('fx');
+    const comboEl = document.getElementById('combo');
+    const totalEl = document.getElementById('total');
+
+    function emitJudge(j) {
+      const div = document.createElement('div');
+      div.className = `judge ${j}`;
+      div.textContent =
+        j === 'perfect' ? 'Perfect!' :
+          j === 'ok' ? 'OK!' :
+            j === 'nb' ? 'Not Bad' : 'Bad';
+      fx.appendChild(div);
+      setTimeout(() => div.remove(), 650);
+    }
+
+    function emitPoints(pts) {
+      const el = document.createElement('div');
+      el.className = 'pts';
+      el.textContent = `+${pts} pt`;
+      fx.appendChild(el);
+      setTimeout(() => el.remove(), 950);
+    }
+
+    function bumpCombo() {
+      comboEl.classList.remove('bump');
+      // reflow trick
+      void comboEl.offsetWidth;
+      comboEl.classList.add('bump');
+    }
+
+    function applyScore(j) {
+      const pts = SCORE_MAP[j] ?? 0;
+
+      if (pts > 0) {
+        combo += 1;
+        total += pts;
+        emitPoints(pts);
+      } else {
+        combo = 0; // 실패 시 콤보 끊김 (정책 변경 가능)
+      }
+
+      emitJudge(j);
+      comboEl.textContent = `Combo x${combo}`;
+      bumpCombo();
+      totalEl.textContent = total.toLocaleString();
+    }
+
+    /* ====== 공개 API: 백엔드에서 호출 ======
+       정확도(0~1) 넣으면 자동으로 판정/점수 반영
+    */
+    window.reportAccuracy = function (accuracy) {
+      const a = Math.max(0, Math.min(1, Number(accuracy) || 0));
+      const j = judgeFromAccuracy(a);
+      applyScore(j);
+    }
+
+    /* ====== 데모 이벤트 ====== */
+    document.querySelectorAll('.demo [data-j]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyScore(btn.dataset.j);
+      });
+    });
+    document.getElementById('useAcc').addEventListener('click', () => {
+      const a = Number(document.getElementById('acc').value) / 100;
+      window.reportAccuracy(a);
+    });
+  </script>
+</body>
+
+</html>

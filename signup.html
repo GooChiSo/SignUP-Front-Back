@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>회원가입 — SIGN UP!</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #eefaf2;
+      --green: #2c9b55;
+      --gray: #e4ede7;
+      --text: #2f8057;
+      --muted: #7a8f83;
+      --shadow: 0 8px 20px rgba(0, 0, 0, .08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Pretendard, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .signup-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: min(420px, 90%);
+      padding: 40px 32px 36px;
+      text-align: center;
+    }
+
+    .title {
+      font-weight: 900;
+      font-size: 32px;
+      color: var(--green);
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin: 0 0 28px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      text-align: left;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--gray);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border .15s;
+    }
+
+    input:focus {
+      border-color: var(--green);
+    }
+
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-family: inherit;
+      font-size: 15px;
+      cursor: pointer;
+      transition: filter .15s;
+    }
+
+    .submit {
+      background: linear-gradient(180deg, #4cc06a, #2c9b55);
+      color: #fff;
+    }
+
+    .submit:hover {
+      filter: brightness(1.05);
+    }
+
+    .cancel {
+      background: #fff;
+      color: var(--green);
+      border: 2px solid var(--green);
+    }
+
+    .cancel:hover {
+      filter: brightness(.96);
+    }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="signup-card">
+      <h1 class="title">회원가입</h1>
+      <p class="subtitle">지금부터 계정을 만들게요!</p>
+
+      <form id="signupForm" novalidate>
+        <div>
+          <label for="name">이름</label>
+          <input type="text" id="name" name="name" placeholder="" required>
+        </div>
+        <div>
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" placeholder="name@example.com" required>
+        </div>
+        <div>
+          <label for="pw">비밀번호</label>
+          <input type="password" id="pw" name="pw" placeholder="" required minlength="6">
+        </div>
+        <div>
+          <label for="pw2">비밀번호 확인</label>
+          <input type="password" id="pw2" name="pw2" placeholder="" required minlength="6">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="submit">가입하기</button>
+          <button type="button" class="cancel" onclick="location.href='index-guest.html'">취소</button>
+        </div>
+      </form>
+
+      <div class="footer">
+        이미 계정이 있으신가요? <a href="login.html">로그인</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const pw = form.pw.value;
+      const pw2 = form.pw2.value;
+
+      if (!name || !email || !pw || !pw2) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+      }
+      if (pw !== pw2) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      alert('회원가입 완료! (백엔드 연동 전 테스트용)');
+      location.href = 'index.html';
+    });
+  </script>
+</body>
+
+</html>

@@ -79,8 +79,8 @@
     .tiles {
       display: grid;
       gap: clamp(14px, 2.6vw, 28px);
-      grid-template-columns: repeat(3, 1fr);
-      width: min(980px, 92vw);
+      grid-template-columns: repeat(2, 1fr);
+      width: min(700px, 92vw);
       margin: 0 auto;
     }
 
@@ -164,7 +164,7 @@
       <p class="subtitle">즐겁게 배우는 수화!</p>
 
       <div class="tiles" role="list">
-        <a href="follow-demo.html" class="tile tile--follow" role="listitem" aria-label="날 따라해봐요">
+        <a href="follow.html" class="tile tile--follow" role="listitem" aria-label="날 따라해봐요">
           <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M7.5 12V6.5a1.5 1.5 0 1 1 3 0V12" stroke="white" stroke-width="1.7" stroke-linecap="round" />
             <path d="M10.5 12V5.5a1.5 1.5 0 1 1 3 0V12" stroke="white" stroke-width="1.7" stroke-linecap="round" />
@@ -174,16 +174,6 @@
           </svg>
           <span>날 따라해봐요</span>
         </a>
-
-        <button class="tile tile--learn" role="listitem" aria-label="학습하기" data-action="learn">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 6.8c0-1.1.9-2 2-2h5v12H6a2 2 0 0 0-2 2V6.8Z" stroke="white" stroke-width="1.7"
-              stroke-linejoin="round" />
-            <path d="M13 4.8h3c1.7 0 3 .9 4 2v12c-1-.9-2.3-1.5-4-1.5h-3v-12Z" stroke="white" stroke-width="1.7"
-              stroke-linejoin="round" />
-          </svg>
-          <span>학습하기</span>
-        </button>
 
         <button class="tile tile--quick" role="listitem" aria-label="퀵드로우" data-action="quick">
           <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -199,7 +189,7 @@
 
   <script>
     document.getElementById('btn-follow').addEventListener('click', () => {
-      window.location.href = 'follow-demo.html';
+      window.location.href = 'follow.html';
     });
     document.querySelectorAll('.tile').forEach(btn => {
       btn.addEventListener('click', (e) => {

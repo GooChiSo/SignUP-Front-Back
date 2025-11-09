@@ -8,12 +8,50 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
   <style>
+    /* Ambient background soft blobs */
+    .bg-deco {
+      position: fixed;
+      inset: -10% -10% 0 -10%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(28% 24% at 15% 20%, rgba(44, 155, 85, .18), transparent 60%),
+        radial-gradient(22% 20% at 85% 30%, rgba(59, 130, 246, .14), transparent 60%),
+        radial-gradient(26% 22% at 30% 85%, rgba(245, 158, 11, .12), transparent 60%),
+        radial-gradient(20% 20% at 80% 80%, rgba(239, 68, 68, .10), transparent 60%);
+      animation: blobs 14s ease-in-out infinite alternate;
+      filter: blur(0px);
+    }
+
+    @keyframes blobs {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate3d(0, -2%, 0) scale(1.03);
+      }
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: -10px;
+      height: 24px;
+      background: radial-gradient(50% 60% at 50% 50%, rgba(0, 0, 0, .18), transparent 70%);
+      filter: blur(8px);
+      opacity: .25;
+      pointer-events: none;
+    }
+
+
     :root {
       --bg: #e9f7ef;
-      --accent: #2c9b55;
       --gray: #d3dcd7;
       --shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-      /* 판정 색상 */
+
       --green: #2c9b55;
       /* Perfect */
       --blue: #3b82f6;
@@ -22,6 +60,12 @@
       /* Not Bad */
       --red: #ef4444;
       /* Bad */
+
+      --hud: #23653d;
+      --muted: #5f8769;
+      --rounds: #a8bfb2;
+      --white: #ffffff;
+      --black: #0b0f0d;
     }
 
     * {
@@ -38,256 +82,1064 @@
     body {
       background: linear-gradient(180deg, #f5fff9 0%, var(--bg) 100%);
       overflow: hidden;
+      color: #2f8057;
     }
 
-    .game-container {
+    .game {
       position: relative;
       width: 100%;
       height: 100vh;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 40px 60px 100px;
-      /* 아래 데모버튼 공간 */
+      display: grid;
+      grid-template-rows: 72px 1fr;
+      /* 하단 안내문 제거 */
     }
 
-    .avatar,
-    .player {
-      width: 300px;
-      height: 400px;
+    /* 상단 HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+    }
+
+    .scorebox {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      color: var(--hud);
+    }
+
+    .scorebox .score {
+      font-size: 44px;
+      font-weight: 900;
+    }
+
+    .scorebox .combo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    /* Score/Combo bump + jitter */
+    .score.bump,
+    .combo.bump {
+      animation: bump .3s ease;
+    }
+
+    @keyframes bump {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.22);
+      }
+    }
+
+    .score.jitter,
+    .combo.jitter {
+      animation: jitter .3s ease;
+    }
+
+    @keyframes jitter {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-1px);
+      }
+
+      40% {
+        transform: translateX(1px);
+      }
+
+      60% {
+        transform: translateX(-1px);
+      }
+
+      80% {
+        transform: translateX(1px);
+      }
+    }
+
+    .rounds {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--rounds);
+      opacity: .5;
+    }
+
+    .dot.active {
+      opacity: 1;
+      background: var(--hud);
+    }
+
+    /* Result-colored dots */
+    .dot.p {
+      background: var(--green);
+      opacity: 1;
+    }
+
+    /* Perfect */
+    .dot.o {
+      background: var(--blue);
+      opacity: 1;
+    }
+
+    /* OK */
+    .dot.n {
+      background: var(--yellow);
+      opacity: 1;
+    }
+
+    /* Not Bad */
+    .dot.d {
+      background: var(--red);
+      opacity: 1;
+    }
+
+    /* Bad */
+
+    .btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--hud);
+      background: #fff;
+      border: 2px solid #bfe1c9;
+    }
+
+    .btn:hover {
+      filter: brightness(.97);
+    }
+
+    .btn.pause {
+      border-color: #9dd2a9;
+    }
+
+    .btn.exit {
+      color: #fff;
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    /* 메인 스테이지: 좌우 가로형 카드 */
+    .stage {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      justify-items: center;
+      padding: 24px 40px;
+      position: relative;
+    }
+
+    .sign-label {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.85);
       border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--hud);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .sign-label strong {
+      color: var(--green);
+    }
+
+    .sign-label .cap {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    .card {
+      width: min(560px, 46vw);
+      /* 가로로 넓게 */
+      height: min(360px, 48vh);
+      /* 세로로 낮게 */
+      border-radius: 14px;
       background: var(--gray);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
       color: #4b5b52;
-      font-size: 22px;
+      font-weight: 800;
+      font-size: 24px;
       box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s ease;
     }
 
-    .hud {
+    /* 판정 순간 카드 하이라이트 강화 */
+    .glow {
       position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #23653d;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      transition: box-shadow .25s ease, transform .25s ease;
     }
 
-    .score {
-      font-size: 36px;
-      font-weight: 900;
+    .glow.perfect {
+      box-shadow: 0 0 25px 10px rgba(44, 155, 85, .6), inset 0 0 30px rgba(44, 155, 85, .4);
+      transform: scale(1.03);
     }
 
-    .combo {
-      font-size: 20px;
-      font-weight: 600;
-      color: #5f8769;
+    .glow.ok {
+      box-shadow: 0 0 25px 10px rgba(59, 130, 246, .6), inset 0 0 30px rgba(59, 130, 246, .4);
+      transform: scale(1.03);
     }
 
-    /* 판정 피드백 */
+    .glow.notbad {
+      box-shadow: 0 0 25px 10px rgba(245, 158, 11, .6), inset 0 0 30px rgba(245, 158, 11, .4);
+      transform: scale(1.03);
+    }
+
+    .glow.bad {
+      box-shadow: 0 0 25px 10px rgba(239, 68, 68, .6), inset 0 0 30px rgba(239, 68, 68, .4);
+      transform: scale(1.03);
+    }
+
+    /* 중앙 판정 텍스트: 더 화려하게 (burst) */
     .feedback {
       position: absolute;
-      top: 45%;
+      top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
-      font-size: 72px;
+      transform: translate(-50%, -50%) scale(.7);
+      font-size: 76px;
       font-weight: 900;
       opacity: 0;
       pointer-events: none;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      transition: opacity 0.3s, transform 0.3s;
+      text-shadow: 0 6px 26px rgba(0, 0, 0, 0.25), 0 0 30px rgba(255, 255, 255, .35);
     }
 
     .feedback.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1.1);
-      animation: pop 0.9s ease forwards;
+      animation: burst 1.1s ease forwards;
     }
 
-    /* 판정별 색상 */
-    .feedback--Perfect {
+    .feedback.perfect {
       color: var(--green);
     }
 
-    .feedback--OK {
+    .feedback.ok {
       color: var(--blue);
     }
 
-    .feedback--NotBad {
+    .feedback.notbad {
       color: var(--yellow);
     }
 
-    .feedback--Bad {
+    .feedback.bad {
       color: var(--red);
     }
 
-    @keyframes pop {
+    @keyframes burst {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.6);
+        transform: translate(-50%, -50%) scale(0.5) rotate(-6deg);
+        filter: blur(4px);
       }
 
-      20% {
+      18% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%) scale(1.25) rotate(3deg);
+        filter: blur(0);
       }
 
-      50% {
+      60% {
         opacity: 1;
+        transform: translate(-50%, -50%) scale(1.0) rotate(0deg);
       }
 
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.4);
+        transform: translate(-50%, -50%) scale(2.1) rotate(6deg);
       }
     }
 
-    /* 점수 증가 애니메이션 */
+    /* 개별 점수 플로팅 */
     .pts {
       position: absolute;
-      right: 60px;
-      top: 60px;
-      font-size: 28px;
-      font-weight: 700;
-      color: #2c9b55;
+      right: 40px;
+      top: 90px;
+      font-size: 30px;
+      font-weight: 800;
       opacity: 0;
       pointer-events: none;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, .25);
     }
 
     .pts.show {
-      animation: float 1s ease forwards;
+      animation: float 1.1s ease forwards;
     }
 
     @keyframes float {
       0% {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(12px) scale(.95);
+        filter: blur(2px);
+      }
+
+      18% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+
+      80% {
+        opacity: 1;
+        transform: translateY(-18px);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-28px);
+      }
+    }
+
+    /* 원형 타이머 오버레이 (아바타 쪽만 덮음) */
+    .countdown {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: radial-gradient(60% 80% at center, rgba(255, 255, 255, .15), rgba(255, 255, 255, .35) 60%, rgba(255, 255, 255, .55));
+      backdrop-filter: blur(1.2px);
+    }
+
+    .countdown.show {
+      display: grid;
+    }
+
+    .dimmer {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .22);
+    }
+
+    .dial {
+      width: 240px;
+      height: 240px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .28));
+    }
+
+    .dial.pulse {
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+        filter: brightness(1.25);
+      }
+    }
+
+    .dial svg {
+      transform: rotate(-90deg);
+    }
+
+    .dial .bg {
+      stroke: #e5efe9;
+      stroke-width: 12;
+      fill: none;
+    }
+
+    .dial .fg {
+      stroke: var(--green);
+      stroke-width: 12;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke .2s ease;
+      /* rAF로 부드럽게 그리므로 dashoffset 전환 제거 (지연 현상 방지) */
+    }
+
+    .dial .t {
+      position: absolute;
+      font-size: 52px;
+      font-weight: 900;
+      color: #2f8057;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, .15);
+    }
+
+    /* 일시정지 & 결과 오버레이 공통 */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      width: min(560px, 92vw);
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .22);
+    }
+
+    .modal h2 {
+      margin: 4px 0 10px;
+    }
+
+    .modal .row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .modal .m-btn {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .m-btn.primary {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .m-btn.secondary {
+      background: #fff;
+      border: 2px solid var(--green);
+      color: var(--green);
+    }
+
+    .m-btn.warn {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* 결과 오버레이 디테일 */
+    .results {
+      z-index: 60;
+    }
+
+    .stat {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: left;
+      margin: 12px 0;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .chip.g {
+      background: var(--green);
+    }
+
+    .chip.b {
+      background: var(--blue);
+    }
+
+    .chip.y {
+      background: var(--yellow);
+      color: #222;
+    }
+
+    .chip.r {
+      background: var(--red);
+    }
+
+    .round-mini {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .rmark {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #cbd5d1;
+    }
+
+    .rmark.p {
+      background: var(--green);
+    }
+
+    .rmark.o {
+      background: var(--blue);
+    }
+
+    .rmark.n {
+      background: var(--yellow);
+    }
+
+    .rmark.d {
+      background: var(--red);
+    }
+
+    /* 개발 편의: 라벨 */
+    .label {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      background: rgba(255, 255, 255, .9);
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #2f8057;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    /* 파티클(화면 전체 확산) */
+    .sparks {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 40;
+    }
+
+    .spark {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.5);
+      filter: blur(0.5px);
+      animation: spark-move 900ms ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes spark-move {
+      0% {
+        opacity: 0;
+        transform: translate(var(--sx), var(--sy)) scale(.3);
       }
 
       10% {
         opacity: 1;
       }
 
-      80% {
-        opacity: 1;
-        transform: translateY(-20px);
-      }
-
       100% {
         opacity: 0;
-        transform: translateY(-30px);
+        transform: translate(var(--ex), var(--ey)) scale(1.1);
       }
-    }
-
-    /* 좌하단: 나가기 버튼 */
-    .exit-btn {
-      position: absolute;
-      bottom: 30px;
-      left: 40px;
-      padding: 12px 18px;
-      background: #fff;
-      color: #2c9b55;
-      border: 2px solid #2c9b55;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* 하단 데모 버튼 영역 (스타일 최소화) */
-    .demo {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .demo button {
-      padding: 8px 12px;
-      font-family: inherit;
     }
   </style>
 </head>
 
 <body>
-  <div class="game-container">
-    <div class="avatar">AVATAR</div>
-    <div class="player">YOU</div>
+  <div class="bg-deco" aria-hidden="true"></div>
+  <!-- 파티클 렌더 레이어 -->
+  <div class="sparks" id="sparks"></div>
 
-    <div class="hud">
-      <div class="score" id="score">0 pts</div>
-      <div class="combo" id="combo">Combo x0</div>
+  <div class="game">
+    <!-- 상단 HUD -->
+    <header class="hud">
+      <div class="scorebox">
+        <div class="score" id="score">0 pts</div>
+        <div class="combo" id="combo">Combo 0x</div>
+      </div>
+
+      <div class="rounds" id="roundDots" aria-label="진행도 (10라운드)">
+        <!-- JS에서 10개 점 생성 -->
+      </div>
+
+      <div class="btns">
+        <button class="btn pause" id="pauseBtn">일시정지</button>
+        <button class="btn exit" onclick="location.href='index.html'">나가기</button>
+      </div>
+    </header>
+
+    <!-- 메인 스테이지 -->
+    <section class="stage">
+      <div class="sign-label" id="signLabel"><span class="cap">현재 단어</span><strong>예시 단어</strong></div>
+      <!-- 아바타 -->
+      <div class="card" id="avatarCard">
+        <span class="label">AVATAR</span>
+        <div class="glow" id="avatarGlow"></div>
+
+        <!-- 카운트다운(아바타 덮는 오버레이) -->
+        <div class="countdown" id="countdown">
+          <div class="dimmer"></div>
+          <div class="dial" id="dialWrap">
+            <svg width="240" height="240">
+              <circle class="bg" cx="120" cy="120" r="100"></circle>
+              <circle class="fg" id="dialFg" cx="120" cy="120" r="100" stroke-dasharray="628" stroke-dashoffset="0">
+              </circle>
+            </svg>
+            <div class="t" id="dialText">5</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용자 -->
+      <div class="card" id="playerCard">
+        <span class="label">YOU</span>
+        <div class="glow" id="playerGlow"></div>
+      </div>
+
+      <!-- 중앙 판정 & 점수 플로팅 -->
+      <div class="feedback" id="feedback">Perfect!</div>
+      <div class="pts" id="pts">+30pt</div>
+    </section>
+  </div>
+
+  <!-- 일시정지 오버레이 -->
+  <div class="overlay" id="pauseOverlay" aria-hidden="true">
+    <div class="modal">
+      <h2>일시정지</h2>
+      <p>잠시 숨 고르고 다시 이어가요.</p>
+      <div class="row">
+        <button class="m-btn primary" id="resumeBtn">계속하기</button>
+        <button class="m-btn secondary" id="restartBtn">처음부터</button>
+        <button class="m-btn warn" onclick="location.href='index.html'">홈으로</button>
+      </div>
     </div>
+  </div>
 
-    <div class="feedback" id="feedback">Perfect!</div>
-    <div class="pts" id="pts">+30pt</div>
+  <!-- 결과 오버레이 -->
+  <div class="overlay results" id="resultsOverlay" aria-hidden="true">
+    <div class="modal">
+      <h2>결과</h2>
+      <div class="stat">
+        <div>총점</div>
+        <div id="rTotal">0</div>
+        <div>평균 정확도</div>
+        <div id="rAcc">0%</div>
+        <div>최고 콤보</div>
+        <div id="rCombo">0</div>
+      </div>
+      <div class="chips">
+        <span class="chip g" id="cPerfect">Perfect 0</span>
+        <span class="chip b" id="cOK">OK 0</span>
+        <span class="chip y" id="cNB">Not Bad 0</span>
+        <span class="chip r" id="cBad">Bad 0</span>
+      </div>
+      <div class="round-mini" id="roundMini">
+        <!-- 라운드별 마크 -->
+      </div>
 
-    <button class="exit-btn" onclick="location.href='index.html'">← 나가기</button>
-
-    <!-- 데모 버튼 (디자인 최소) -->
-    <div class="demo" aria-label="판정 이펙트 데모">
-      <button data-demo="Perfect">Perfect</button>
-      <button data-demo="OK">OK</button>
-      <button data-demo="Not Bad">Not Bad</button>
-      <button data-demo="Bad">Bad</button>
+      <div class="row" style="margin-top:16px;">
+        <button class="m-btn primary" id="againBtn">다시하기</button>
+        <button class="m-btn secondary" onclick="location.href='index.html'">홈으로</button>
+        <button class="m-btn secondary" onclick="location.href='records.html'">기록 보기</button>
+      </div>
     </div>
   </div>
 
   <script>
-    let totalScore = 0;
-    let combo = 0;
+    /* ===== 상태 ===== */
+    const TOTAL_ROUNDS = 10;
+    const COUNTDOWN_SEC = 5;
 
     const scoreMap = { Perfect: 30, OK: 20, 'Not Bad': 10, Bad: 0 };
+    const accMap = { Perfect: 1.0, OK: 0.75, 'Not Bad': 0.5, Bad: 0.0 };
 
-    function normalizeClassName(result) {
-      // "Not Bad" -> "NotBad"
-      return result.replace(/\s+/g, '');
+    let round = 0;
+    let totalScore = 0;
+    let combo = 0;
+    let maxCombo = 0;
+    let results = []; // 각 라운드 판정
+    let prevScore = 0;
+    let prevCombo = 0;
+    const signLabel = document.getElementById('signLabel');
+    const wordList = ["안녕하세요", "사랑", "감사합니다", "행복", "좋아요", "학교", "친구", "밥", "시간", "운동"];
+    /* ===== 숫자 트윈 & HUD 강조 ===== */
+    function tweenNumber(el, from, to, { prefix = '', suffix = '' } = {}) {
+      const start = performance.now();
+      const duration = 420;
+      function step(t) {
+        const p = Math.min(1, (t - start) / duration);
+        const val = Math.round(from + (to - from) * p);
+        el.textContent = `${prefix}${val}${suffix}`;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    function bump(el) {
+      el.classList.remove('bump', 'jitter'); void el.offsetWidth;
+      el.classList.add('bump', 'jitter');
+      setTimeout(() => { el.classList.remove('jitter'); }, 320);
+    }
+    function animateScoreCombo(ps, s, pc, c) {
+      tweenNumber(scoreEl, ps, s, { suffix: ' pts' });
+      tweenNumber(comboEl, pc, c, { prefix: 'Combo ', suffix: 'x' });
+      bump(scoreEl); bump(comboEl);
+    }
+
+    let paused = false;
+    let countdownTimer = null;
+
+    /* ===== 엘리먼트 ===== */
+    const scoreEl = document.getElementById('score');
+    const comboEl = document.getElementById('combo');
+    const dotsWrap = document.getElementById('roundDots');
+
+    const avatarGlow = document.getElementById('avatarGlow');
+    const playerGlow = document.getElementById('playerGlow');
+
+
+    const feedbackEl = document.getElementById('feedback');
+    feedbackEl.addEventListener('animationend', () => {
+      feedbackEl.classList.remove('show');
+    });
+    const ptsEl = document.getElementById('pts');
+
+    const countdown = document.getElementById('countdown');
+    const dialFg = document.getElementById('dialFg');
+    const dialText = document.getElementById('dialText');
+    const dialWrap = document.getElementById('dialWrap');
+
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    const resultsOverlay = document.getElementById('resultsOverlay');
+    const sparksLayer = document.getElementById('sparks');
+
+    /* ===== 진행도 점 생성 ===== */
+    function renderDots() {
+      dotsWrap.innerHTML = '';
+      for (let i = 0; i < TOTAL_ROUNDS; i++) {
+        const d = document.createElement('div');
+        let cls = 'dot';
+        if (i < results.length) {
+          const r = results[i];
+          cls += ' ' + (r === 'Perfect' ? 'p' : r === 'OK' ? 'o' : r === 'Not Bad' ? 'n' : 'd');
+        }
+        // 진행 중(i === results.length)과 미진행(i > results.length)은 비활성(회색) 유지
+        d.className = cls;
+        dotsWrap.appendChild(d);
+      }
+    }
+    renderDots();
+
+    /* ===== 시작/라운드 루프 ===== */
+    function startGame() {
+      round = 0; totalScore = 0; combo = 0; maxCombo = 0; results = [];
+      updateHUD(); renderDots(); nextRound();
+    }
+
+    function nextRound() {
+      if (round >= TOTAL_ROUNDS) return endGame();
+
+      // 현재 라운드 단어 갱신
+      const currentWord = wordList[round % wordList.length];
+      signLabel.innerHTML = `<span class="cap">현재 단어</span><strong>${currentWord}</strong>`;
+
+      // 1) 아바타 시범 (데모: 1초 대기)
+      setTimeout(() => { startCountdown(COUNTDOWN_SEC); }, 1000);
+    }
+
+    /* ===== 5초 원형 카운트다운 ===== */
+    function startCountdown(sec) {
+      if (paused) return;
+      countdown.classList.add('show');
+
+      const CIRCUM = 2 * Math.PI * 100; // r=100
+      dialFg.setAttribute('stroke-dasharray', CIRCUM);
+      dialFg.style.transition = 'stroke .2s ease'; // dashoffset에 transition 남지 않도록 보장
+      let startTime = performance.now();
+
+      function frame(now) {
+        if (paused) return;
+        const elapsed = (now - startTime) / 1000;
+        const remain = sec - elapsed;
+        const ratioRaw = remain / sec;
+        const ratio = Math.min(1, Math.max(0, ratioRaw)); // 0..1 클램핑
+
+        // 텍스트(올림 표시) & 게이지 진행
+        dialText.textContent = Math.ceil(remain);
+        dialFg.style.strokeDashoffset = CIRCUM * (1 - ratio);
+
+        // 색상 보간 (초록→노랑→빨강)
+        const green = [44, 155, 85];
+        const yellow = [245, 158, 11];
+        const red = [239, 68, 68];
+        let color;
+        if (ratio > 0.6) {
+          color = green;
+        } else if (ratio > 0.3) {
+          const t = (ratio - 0.3) / 0.3; // 0..1 (yellow->green)
+          color = [
+            Math.round(yellow[0] * (1 - t) + green[0] * t),
+            Math.round(yellow[1] * (1 - t) + green[1] * t),
+            Math.round(yellow[2] * (1 - t) + green[2] * t),
+          ];
+        } else {
+          const t = ratio / 0.3; // 0..1 (red->yellow)
+          color = [
+            Math.round(red[0] * (1 - t) + yellow[0] * t),
+            Math.round(red[1] * (1 - t) + yellow[1] * t),
+            Math.round(red[2] * (1 - t) + yellow[2] * t),
+          ];
+        }
+        dialFg.style.stroke = `rgb(${color.join(',')})`;
+
+        // 마지막 1초 펄스 유지
+        if (remain <= 1) {
+          dialWrap.classList.add('pulse');
+        } else {
+          dialWrap.classList.remove('pulse');
+        }
+
+        if (ratio <= 0) {
+          // 정확히 0에서 종료: 게이지 완전 소멸 보장
+          dialText.textContent = '0';
+          dialFg.style.strokeDashoffset = CIRCUM;
+          dialWrap.classList.remove('pulse');
+          countdown.classList.remove('show');
+          // ===== 데모: 타이머 종료 시 임의 판정 =====
+          const demo = ["Perfect", "OK", "Not Bad", "Bad"];
+          const r = demo[Math.floor(Math.random() * demo.length)];
+          onRoundScored(r);
+          return;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    /* ===== 판정 처리 ===== */
+    function onRoundScored(result) {
+      if (paused) return;
+
+      // 이전 값 저장
+      prevScore = totalScore;
+      prevCombo = combo;
+
+      // 점수/콤보
+      const pt = scoreMap[result] ?? 0;
+      totalScore += pt;
+      combo = pt > 0 ? combo + 1 : 0;
+      if (combo > maxCombo) maxCombo = combo;
+
+      // 이펙트
+      showFeedback(result);
+      flashGlow(result);
+
+      // 진행 업데이트
+      results.push(result);
+      round++;
+      animateScoreCombo(prevScore, totalScore, prevCombo, combo);
+      renderDots();
+
+      // 다음 라운드 or 종료
+      setTimeout(() => {
+        if (round >= TOTAL_ROUNDS) endGame();
+        else nextRound();
+      }, 950);
+    }
+
+    /* ===== HUD/이펙트 ===== */
+    function updateHUD() {
+      scoreEl.textContent = `${totalScore} pts`;
+      comboEl.textContent = `Combo ${combo}x`;
     }
 
     function showFeedback(result) {
-      const fb = document.getElementById('feedback');
-      const pts = document.getElementById('pts');
-      const scoreEl = document.getElementById('score');
-      const comboEl = document.getElementById('combo');
+      const cls = result.toLowerCase().replace(/\s+/g, ''); // perfect/ok/notbad/bad
+      feedbackEl.className = `feedback ${cls}`;
+      feedbackEl.textContent = `${result}!`;
+      void feedbackEl.offsetWidth; // reflow to restart animation
+      feedbackEl.classList.add('show');
 
-      // 텍스트 & 색상 클래스 교체
-      fb.textContent = result + "!";
-      fb.classList.remove('show', 'feedback--Perfect', 'feedback--OK', 'feedback--NotBad', 'feedback--Bad');
-      fb.classList.add('feedback--' + normalizeClassName(result));
-
-      // 재생 트리거
-      void fb.offsetWidth;
-      fb.classList.add('show');
-
-      // 점수/콤보 갱신
-      const point = scoreMap[result] ?? 0;
-      combo = point > 0 ? combo + 1 : 0;
-      totalScore += point;
-
-      pts.textContent = "+" + point + "pt";
-      pts.classList.remove('show');
-      void pts.offsetWidth;
-      pts.classList.add('show');
-
-      scoreEl.textContent = totalScore + " pts";
-      comboEl.textContent = "Combo x" + combo;
+      const pt = scoreMap[result] ?? 0;
+      ptsEl.textContent = `+${pt}pt`;
+      ptsEl.style.color = pt >= 20 ? (result === 'OK' ? 'var(--blue)' : 'var(--green)') :
+        (pt === 10 ? 'var(--yellow)' : 'var(--red)');
+      ptsEl.classList.remove('show'); void ptsEl.offsetWidth; ptsEl.classList.add('show');
+      spawnSparks(result, 48); // 텍스트 이펙트와 동시에 파티클 폭발
     }
 
-    // 데모 버튼 이벤트
-    document.querySelectorAll('[data-demo]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        showFeedback(btn.getAttribute('data-demo'));
-      });
+    function flashGlow(result) {
+      const key = result.toLowerCase().replace(/\s+/g, ''); // perfect/ok/notbad/bad
+      playerGlow.className = `glow ${key}`;
+      avatarGlow.className = `glow ${key}`;
+      setTimeout(() => {
+        playerGlow.className = 'glow';
+        avatarGlow.className = 'glow';
+      }, 700);
+    }
+
+    /* ===== 파티클(화면 전체 확산) ===== */
+    function spawnSparks(result, count = 40) {
+      const color =
+        result === 'Perfect' ? getComputedStyle(document.documentElement).getPropertyValue('--green').trim() :
+          result === 'OK' ? getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() :
+            result === 'Not Bad' ? getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim() :
+              getComputedStyle(document.documentElement).getPropertyValue('--red').trim();
+
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // 중앙을 기준으로 사방 확산
+      const centerX = vw / 2;
+      const centerY = vh / 2;
+
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.background = color;
+
+        // 시작점: 중앙 근처에 약간 퍼지게
+        const jitterX = (Math.random() - 0.5) * 60;
+        const jitterY = (Math.random() - 0.5) * 40;
+
+        // 확산 거리/방향
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 160 + Math.random() * (Math.min(vw, vh) / 2); // 화면 전체로
+        const endX = Math.cos(angle) * distance;
+        const endY = Math.sin(angle) * distance;
+
+        // 크기 랜덤
+        const size = 6 + Math.random() * 10;
+        s.style.width = `${size}px`;
+        s.style.height = `${size}px`;
+        s.style.left = `${centerX}px`;
+        s.style.top = `${centerY}px`;
+
+        // CSS 변수로 이동 벡터 전달
+        s.style.setProperty('--sx', `${-50 + jitterX}px`);
+        s.style.setProperty('--sy', `${-50 + jitterY}px`);
+        s.style.setProperty('--ex', `${-50 + endX}px`);
+        s.style.setProperty('--ey', `${-50 + endY}px`);
+
+        sparksLayer.appendChild(s);
+
+        // 자연감 주기: 약간의 딜레이
+        s.style.animationDelay = `${Math.random() * 120}ms`;
+
+        // 수거
+        s.addEventListener('animationend', () => s.remove());
+      }
+    }
+
+    /* ===== 일시정지 ===== */
+    function setPaused(v) {
+      paused = v;
+      pauseOverlay.classList.toggle('show', paused);
+    }
+    pauseBtn.addEventListener('click', () => setPaused(true));
+    document.getElementById('resumeBtn').addEventListener('click', () => setPaused(false));
+    document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setPaused(!paused);
     });
 
-    // 백엔드 연동 시: showFeedback("Perfect") 식으로 호출하면 됨.
+    /* ===== 종료/결과 ===== */
+    function endGame() {
+      const counts = { Perfect: 0, OK: 0, 'Not Bad': 0, Bad: 0 };
+      results.forEach(r => counts[r] = (counts[r] || 0) + 1);
+      const accAvg = results.length
+        ? Math.round(100 * results.reduce((s, r) => s + (accMap[r] || 0), 0) / results.length)
+        : 0;
+
+      // 결과 렌더
+      document.getElementById('rTotal').textContent = totalScore;
+      document.getElementById('rAcc').textContent = accAvg + '%';
+      document.getElementById('rCombo').textContent = maxCombo;
+      document.getElementById('cPerfect').textContent = `Perfect ${counts['Perfect'] || 0}`;
+      document.getElementById('cOK').textContent = `OK ${counts['OK'] || 0}`;
+      document.getElementById('cNB').textContent = `Not Bad ${counts['Not Bad'] || 0}`;
+      document.getElementById('cBad').textContent = `Bad ${counts['Bad'] || 0}`;
+
+      const mini = document.getElementById('roundMini');
+      mini.innerHTML = '';
+      results.forEach(r => {
+        const m = document.createElement('span');
+        m.className = 'rmark ' + (r === 'Perfect' ? 'p' : r === 'OK' ? 'o' : r === 'Not Bad' ? 'n' : 'd');
+        mini.appendChild(m);
+      });
+
+      // 기록 저장
+      saveRecord({
+        time: new Date().toISOString(),
+        totalScore, accAvg, maxCombo,
+        counts, results
+      });
+
+      resultsOverlay.classList.add('show');
+    }
+    document.getElementById('againBtn').addEventListener('click', () => location.reload());
+
+    /* ===== 기록 저장 (localStorage) ===== */
+    const STORE_KEY = 'su_records';
+    function saveRecord(entry) {
+      try {
+        const arr = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        arr.unshift(entry);
+        localStorage.setItem(STORE_KEY, JSON.stringify(arr.slice(0, 200)));
+      } catch (e) { console.warn('record save failed', e); }
+    }
+
+    /* ===== 시작 ===== */
+    startGame();
+
+    /* ===== (연동용) 외부에서 채점 결과를 넣고 싶을 때 =====
+       백엔드에서 판정이 나오는 순간 아래 함수를 호출하면 됨:
+       window.onRoundScored('Perfect' | 'OK' | 'Not Bad' | 'Bad');
+    */
+    window.onRoundScored = onRoundScored;
   </script>
 </body>
 

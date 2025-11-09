@@ -140,24 +140,14 @@
       <p class="subtitle">즐겁게 배우는 수화!</p>
 
       <div class="stack">
-        <button class="cta cta--login" data-action="login">로그인하여 이어서 플레이하기</button>
-        <button class="cta cta--signup" data-action="signup">회원가입하여 새로 시작하기</button>
+        <a class="cta cta--login" href="login.html">로그인하여 이어서 플레이하기</a>
+        <a class="cta cta--signup" href="signup.html">회원가입하여 새로 시작하기</a>
       </div>
     </section>
 
     <div aria-hidden="true"></div>
   </main>
 
-  <script>
-    // 후속 페이지 경로 받기 전까지 동작만 로그로 남김
-    document.querySelectorAll('.cta').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('[GUEST] click:', btn.dataset.action);
-        // TODO: 너가 주는 경로에 맞춰 href/이동 연결
-      });
-    });
-  </script>
 </body>
 
 </html>

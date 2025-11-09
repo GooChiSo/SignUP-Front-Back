@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로딩 중… — SIGN UP!</title>
+  <!-- Pretendard -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #eefaf2;
+      --green: #2c9b55;
+      --ring: #e3f2ea;
+      --ring-active: #2c9b55;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 50% 0%, #f5fff9 0%, var(--bg) 60%) fixed,
+        linear-gradient(0deg, #f6fff8, var(--bg)) fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--green);
+    }
+
+
+
+    /* Spinner */
+    .spinner {
+      width: 90px;
+      height: 90px;
+      position: relative;
+    }
+
+    .spinner::before,
+    .spinner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 6px solid var(--ring);
+    }
+
+    .spinner::after {
+      border-top-color: transparent;
+      border-right-color: transparent;
+      border-bottom-color: var(--ring-active);
+      border-left-color: var(--ring-active);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    p {
+      margin-top: 36px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4c6d5a;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="spinner" aria-hidden="true"></div>
+  <p>잠시만 기다려 주세요</p>
+</body>
+
+</html>

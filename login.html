@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로그인 — SIGN UP!</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #eefaf2;
+      --green: #2c9b55;
+      --gray: #e4ede7;
+      --text: #2f8057;
+      --muted: #7a8f83;
+      --shadow: 0 8px 20px rgba(0, 0, 0, .08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Pretendard, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: min(420px, 90%);
+      padding: 40px 32px 36px;
+      text-align: center;
+    }
+
+    .title {
+      font-weight: 900;
+      font-size: 32px;
+      color: var(--green);
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin: 0 0 28px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      text-align: left;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--gray);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border .15s;
+    }
+
+    input:focus {
+      border-color: var(--green);
+    }
+
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-family: inherit;
+      font-size: 15px;
+      cursor: pointer;
+      transition: filter .15s;
+    }
+
+    .submit {
+      background: linear-gradient(180deg, #4cc06a, #2c9b55);
+      color: #fff;
+    }
+
+    .submit:hover {
+      filter: brightness(1.05);
+    }
+
+    .cancel {
+      background: #fff;
+      color: var(--green);
+      border: 2px solid var(--green);
+    }
+
+    .cancel:hover {
+      filter: brightness(.96);
+    }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .footer a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="login-card">
+      <h1 class="title">로그인</h1>
+      <p class="subtitle">로그인하고 재미있게 즐겨요!</p>
+
+      <form id="loginForm" novalidate>
+        <div>
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" placeholder="name@example.com" required>
+        </div>
+        <div>
+          <label for="pw">비밀번호</label>
+          <input type="password" id="pw" name="pw" placeholder="" required minlength="6">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="submit">로그인</button>
+          <button type="button" class="cancel" onclick="location.href='index-guest.html'">취소</button>
+        </div>
+      </form>
+
+      <div class="footer">
+        아직 계정이 없으신가요? <a href="signup.html">회원가입</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      const pw = form.pw.value;
+      if (!email || !pw) {
+        alert('이메일과 비밀번호를 입력해주세요.');
+        return;
+      }
+      alert('로그인 성공! (백엔드 연동 전 테스트용)');
+      location.href = 'index.html';
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>퀵드로우 결과 — SIGN UP!</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #eefaf2;
+      --title: #2f8057;
+      --muted: #6a8f80;
+      --ink: #0b0f0d;
+      --green: #2c9b55;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --gray: #f3f5f4;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: linear-gradient(180deg, #f7fff9 0%, var(--bg) 100%);
+      color: var(--ink);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 36px 24px 8px;
+      text-align: center
+    }
+
+    .h1 {
+      margin: 0 0 6px;
+      font-size: 40px;
+      font-weight: 1000;
+      color: var(--ink)
+    }
+
+    .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-weight: 700
+    }
+
+    .grid {
+      padding: 10px 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px;
+      max-width: 1200px;
+      width: 92vw;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--gray);
+      border-radius: 16px;
+      padding: 26px 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .10);
+      transition: transform .15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px)
+    }
+
+    .word {
+      font-size: 44px;
+      font-weight: 1000;
+      line-height: 1.12;
+      margin: 0 0 36px;
+      color: var(--ink);
+    }
+
+    .small {
+      font-size: 15px;
+      font-weight: 900;
+      color: #1c1f1e;
+      opacity: .8
+    }
+
+    .badge {
+      position: absolute;
+      right: 16px;
+      bottom: 12px;
+      font-weight: 900;
+      font-size: 20px;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+    }
+
+    .badge.ok {
+      background: var(--green)
+    }
+
+    /* ◯ */
+    .badge.mid {
+      background: var(--orange)
+    }
+
+    /* △ */
+    .badge.ng {
+      background: var(--red)
+    }
+
+    /* × */
+
+    /* Hover Preview */
+    .preview {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .card:hover .preview {
+      opacity: 1
+    }
+
+    .preview .box {
+      background: #fff;
+      border-radius: 12px;
+      width: min(340px, 80%);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .preview .avatar {
+      height: 160px;
+      background: #e5e8e7;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #4a5a51;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .preview .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center
+    }
+
+    .action {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid #cfe5d7;
+      background: #fff;
+      color: #23653d;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    footer {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 22px
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid #bfe1c9;
+      background: #fff;
+      color: #2f8057;
+      font-weight: 800;
+      cursor: pointer
+    }
+
+    .btn.primary {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green)
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <p class="h1" id="title">0개중 0개를 맞췄어요!</p>
+    <p class="sub">카드를 가리키면(hover) 아바타 미리보기를 볼 수 있어요.</p>
+  </header>
+
+  <main class="grid" id="grid">
+    <!-- JS로 카드 6개 생성 -->
+  </main>
+
+  <footer>
+    <a class="btn" href="quickdraw.html">다시 하기</a>
+    <a class="btn primary" href="index.html">홈으로</a>
+  </footer>
+
+  <script>
+    /* 데모 데이터: 6개 카드, 상태 ok/mid/ng */
+    const items = [
+      { word: '나', status: 'mid' },
+      { word: '나', status: 'ng' },
+      { word: '나', status: 'ok' },
+      { word: '나', status: 'mid' },
+      { word: '나', status: 'mid' },
+      { word: '나', status: 'ok' },
+    ];
+
+    function render() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      let ok = 0, mid = 0, ng = 0;
+
+      items.forEach(it => {
+        ok += it.status === 'ok';
+        mid += it.status === 'mid';
+        ng += it.status === 'ng';
+
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        card.innerHTML = `
+      <h3 class="word">${it.word}</h3>
+      <div class="small">단어</div>
+      <div class="badge ${it.status}">${it.status === 'ok' ? '◯' : it.status === 'mid' ? '△' : '×'}</div>
+      <div class="preview">
+        <div class="box">
+          <div class="avatar">아바타 미리보기</div>
+          <div class="actions">
+            <button class="action">재생</button>
+            <button class="action">다시보기</button>
+            <button class="action">상세</button>
+          </div>
+        </div>
+      </div>
+    `;
+        grid.appendChild(card);
+      });
+
+      const title = document.getElementById('title');
+      const total = items.length;
+      const correct = ok; // 여기선 ok 갯수를 정답으로 집계
+      title.textContent = `${total}개중 ${correct}개를 맞췄어요!`;
+    }
+    render();
+  </script>
+</body>
+
+</html>

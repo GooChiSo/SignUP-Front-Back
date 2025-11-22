@@ -8,7 +8,112 @@
   <!-- Pretendard -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" />
   <style>
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 30;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+    }
+
+    .logout-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .logout-btn .material-icons-outlined {
+      font-size: 22px;
+      color: var(--title);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-logout {
+      background: #ffffff;
+      width: min(320px, 88vw);
+      padding: 24px 22px 20px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .modal-logout h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--title);
+    }
+
+    .modal-logout p {
+      margin: 0 0 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-option {
+      flex: 1 1 0;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 999px;
+      border: 2px solid #d2e6dc;
+      background: #ffffff;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .modal-option.primary {
+      background: linear-gradient(180deg, var(--btn1-from), var(--btn1-to));
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-option:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .modal-option:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
     :root {
       --bg: #eefaf2;
       --card: #fff;
@@ -156,6 +261,9 @@
 </head>
 
 <body>
+  <button class="logout-btn" id="logoutBtn" aria-label="로그아웃">
+    <span class="material-icons-outlined" aria-hidden="true">logout</span>
+  </button>
   <main class="frame" aria-labelledby="title">
     <div class="spacer" aria-hidden="true"></div>
 
@@ -175,28 +283,65 @@
           <span>날 따라해봐요</span>
         </a>
 
-        <button class="tile tile--quick" role="listitem" aria-label="퀵드로우" data-action="quick">
+        <a href="quickdraw.html" class="tile tile--quick" role="listitem" aria-label="퀵드로우" data-action="quick">
           <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="white" stroke-width="1.7" stroke-linejoin="round" />
           </svg>
           <span>퀵드로우</span>
-        </button>
+        </a>
       </div>
     </section>
 
     <div class="spacer" aria-hidden="true"></div>
   </main>
 
+  <div class="modal-backdrop" id="logoutModal">
+    <div class="modal-logout" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+      <h2 id="logoutTitle">로그아웃 하시겠어요?</h2>
+      <!-- <p>언제든지 다시 SIGN UP! 으로 돌아오실 수 있어요.</p> -->
+      <div class="modal-actions">
+        <button class="modal-option primary" id="confirmLogout">로그아웃할게요</button>
+        <button class="modal-option" id="cancelLogout">잘못 눌렀어요</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    document.getElementById('btn-follow').addEventListener('click', () => {
-      window.location.href = 'follow.html';
-    });
+    // 기존 타일 클릭 로깅 (데모용)
     document.querySelectorAll('.tile').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.preventDefault();
         console.log('clicked:', btn.dataset.action);
       });
     });
+
+    // 로그아웃 모달 UI 제어 (화면 구현만)
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutModal = document.getElementById('logoutModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+
+    if (logoutBtn && logoutModal) {
+      logoutBtn.addEventListener('click', () => {
+        logoutModal.classList.add('show');
+      });
+    }
+
+    if (cancelLogout && logoutModal) {
+      cancelLogout.addEventListener('click', () => {
+        logoutModal.classList.remove('show');
+      });
+    }
+
+    if (logoutModal) {
+      // 바깥(배경) 클릭 시 닫기
+      logoutModal.addEventListener('click', (e) => {
+        if (e.target === logoutModal) {
+          logoutModal.classList.remove('show');
+        }
+      });
+    }
+
+    // confirmLogout(로그아웃할게요)는 화면 구현만, 실제 동작은 백엔드에서 처리 예정이므로 여기서는 아무 동작도 하지 않습니다.
   </script>
 </body>
 

@@ -16,11 +16,27 @@
       pointer-events: none;
       background:
         radial-gradient(28% 24% at 15% 20%, rgba(44, 155, 85, .18), transparent 60%),
-        radial-gradient(22% 20% at 85% 30%, rgba(59, 130, 246, .14), transparent 60%),
         radial-gradient(26% 22% at 30% 85%, rgba(245, 158, 11, .12), transparent 60%),
         radial-gradient(20% 20% at 80% 80%, rgba(239, 68, 68, .10), transparent 60%);
       animation: blobs 14s ease-in-out infinite alternate;
       filter: blur(0px);
+    }
+
+    .score-glow {
+      position: fixed;
+      top: -8%;
+      right: -8%;
+      width: 42vw;
+      height: 42vh;
+      pointer-events: none;
+      background: radial-gradient(32% 32% at 80% 20%, rgba(59, 130, 246, .32), transparent 70%);
+      opacity: 0;
+      transition: opacity .32s ease;
+      z-index: 0;
+    }
+
+    .score-glow.show {
+      opacity: 1;
     }
 
     @keyframes blobs {
@@ -390,8 +406,8 @@
     .pts {
       position: absolute;
       right: 40px;
-      top: 90px;
-      font-size: 30px;
+      top: 80px;
+      font-size: 36px;
       font-weight: 800;
       opacity: 0;
       pointer-events: none;
@@ -754,6 +770,7 @@
 
 <body>
   <div class="bg-deco" aria-hidden="true"></div>
+  <div class="score-glow" id="scoreGlow" aria-hidden="true"></div>
   <!-- 파티클 렌더 레이어 -->
   <div class="sparks" id="sparks"></div>
 
@@ -926,6 +943,7 @@
 
     const resultsOverlay = document.getElementById('resultsOverlay');
     const sparksLayer = document.getElementById('sparks');
+    const scoreGlow = document.getElementById('scoreGlow');
 
     const prestartEl = document.getElementById('prestart');
     const pretextEl = document.getElementById('pretext');
@@ -1112,6 +1130,13 @@
       ptsEl.style.color = pt >= 20 ? (result === 'OK' ? 'var(--blue)' : 'var(--green)') :
         (pt === 10 ? 'var(--yellow)' : 'var(--red)');
       ptsEl.classList.remove('show'); void ptsEl.offsetWidth; ptsEl.classList.add('show');
+
+      // 점수가 올라갈 때만 우측 상단 파란 글로우 효과
+      if (pt > 0 && scoreGlow) {
+        scoreGlow.classList.add('show');
+        setTimeout(() => scoreGlow.classList.remove('show'), 420);
+      }
+
       spawnSparks(result, 48); // 텍스트 이펙트와 동시에 파티클 폭발
     }
 

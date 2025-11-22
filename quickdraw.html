@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>퀵드로우 — SIGN UP!</title>
+  <!-- Pretendard -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    .btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btns--topright {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--hud);
+      background: #fff;
+      border: 2px solid #bfe1c9;
+    }
+
+    .btn.exit {
+      color: #fff;
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    :root {
+      --bg: #eefaf2;
+      --card: #fff;
+      --title: #2f8057;
+      --text: #356a55;
+      --muted: #6c8f7f;
+      --green: #2c9b55;
+      --red: #ef4444;
+      --shadow: 0 14px 28px rgba(0, 0, 0, .12), 0 10px 10px rgba(0, 0, 0, .08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 50% 0%, #f5fff9 0%, var(--bg) 60%) fixed,
+        linear-gradient(0deg, #f6fff8, var(--bg)) fixed;
+    }
+
+    .frame {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      place-items: center;
+      padding: clamp(16px, 3vw, 40px);
+    }
+
+    header.hero {
+      width: min(1100px, 92vw);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .title {
+      font-weight: 900;
+      letter-spacing: .6px;
+      color: var(--title);
+      font-size: clamp(30px, 5.8vw, 46px);
+      line-height: 1.1;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: clamp(13px, 2.1vw, 16px);
+      margin: 0;
+    }
+
+    .board {
+      width: min(1100px, 92vw);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .words-wrap {
+      overflow: hidden;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .08);
+    }
+
+    .words-row {
+      display: flex;
+      justify-content: center;
+      gap: clamp(14px, 2.4vw, 28px);
+      font-size: clamp(18px, 2.8vw, 24px);
+      font-weight: 900;
+      letter-spacing: .04em;
+      transition: transform .22s ease, opacity .22s ease;
+    }
+
+    .word {
+      position: relative;
+      padding: 4px 4px 6px;
+    }
+
+    .word--current::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 80%;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--title);
+      transform: translateX(-50%);
+    }
+
+    .word--pending {
+      color: var(--text);
+      opacity: .7;
+    }
+
+    .word--ok {
+      color: var(--green);
+    }
+
+    .word--wrong {
+      color: var(--red);
+    }
+
+    .set-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .set-info strong {
+      color: var(--title);
+      font-weight: 800;
+    }
+
+    .camera {
+      margin-top: 6px;
+    }
+
+    .cam-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cam-label span:last-child {
+      font-size: 12px;
+      opacity: .8;
+    }
+
+    .cam-box {
+      border-radius: 18px;
+      border: 1px solid rgba(53, 106, 85, .28);
+      background: white;
+      aspect-ratio: 16 / 9;
+      width: 86%;
+      max-width: 720px;
+      max-height: 48vh;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* 세트 전환 애니메이션 */
+    .words-row.slide-out-left {
+      animation: slideOutLeft 260ms ease forwards;
+    }
+
+    .words-row.slide-in-right {
+      animation: slideInRight 260ms ease forwards;
+    }
+
+    @keyframes slideOutLeft {
+      0% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateX(-40px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes slideInRight {
+      0% {
+        transform: translateX(40px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+
+
+    .timer-bar {
+      width: 86%;
+      max-width: 720px;
+      height: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 999px;
+      margin: 10px auto 0;
+      overflow: hidden;
+    }
+
+    .timer-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #2c9b55, #4ddf8f);
+      border-radius: inherit;
+      transition: width linear;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="frame">
+    <div class="btns btns--topright">
+      <button class="btn exit" onclick="location.href='index.html'">나가기</button>
+    </div>
+    <header class="hero">
+      <h1 class="title">퀵드로우</h1>
+      <p class="subtitle">단어에 맞는 수어를 빠르게 떠올려서 동작하세요!</p>
+    </header>
+
+    <section class="board">
+      <div class="words-wrap">
+        <div class="words-row" id="wordsRow">
+          <!-- 단어 세트가 JS로 렌더링됩니다 -->
+        </div>
+      </div>
+
+      <div class="set-info">
+        <span>세트 <strong id="setIndex">1</strong> / <span id="setCount">6</span></span>
+        <span>단어 <strong id="wordIndex">1</strong> / <span id="wordCount">6</span></span>
+      </div>
+
+      <div class="camera">
+        <div class="cam-box">
+          웹캠
+        </div>
+        <div class="timer-bar">
+          <div class="timer-fill" id="timerFill"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <button class="dev-btn ok" id="btnTestCorrect">테스트: 정답</button>
+    <button class="dev-btn ng" id="btnTestWrong">테스트: 오답</button>
+
+  </main>
+
+  <script>
+    // ===== 더미 단어 세트 =====
+    // 실제로는 서버/백엔드에서 세트별 단어 목록을 받아서 이 구조를 채우면 됩니다.
+    const wordSets = [
+      ['단어1', '단어2', '단어3', '단어4', '단어5', '단어6'],
+      ['단어7', '단어8', '단어9', '단어10', '단어11', '단어12'],
+      ['단어13', '단어14', '단어15', '단어16', '단어17', '단어18'],
+      ['단어19', '단어20', '단어21', '단어22', '단어23', '단어24'],
+      ['단어25', '단어26', '단어27', '단어28', '단어29', '단어30'],
+      ['단어31', '단어32', '단어33', '단어34', '단어35', '단어36'],
+    ];
+
+    const wordsRowEl = document.getElementById('wordsRow');
+    const setIndexEl = document.getElementById('setIndex');
+    const setCountEl = document.getElementById('setCount');
+    const wordIndexEl = document.getElementById('wordIndex');
+    const wordCountEl = document.getElementById('wordCount');
+
+    setCountEl.textContent = wordSets.length;
+
+    let currentSetIndex = 0;  // 0-based
+    let currentWordIndex = 0; // 0-based
+
+    function renderCurrentSet() {
+      const words = wordSets[currentSetIndex];
+      wordsRowEl.innerHTML = '';
+      words.forEach((w, i) => {
+        const span = document.createElement('span');
+        span.textContent = w;
+        span.classList.add('word');
+        if (i === currentWordIndex) {
+          span.classList.add('word--current');
+        } else {
+          span.classList.add('word--pending');
+        }
+        wordsRowEl.appendChild(span);
+      });
+
+      setIndexEl.textContent = currentSetIndex + 1;
+      wordIndexEl.textContent = currentWordIndex + 1;
+      wordCountEl.textContent = wordSets[currentSetIndex].length;
+    }
+
+    // 세트 전환 애니메이션 처리
+    function goToNextSet() {
+      if (currentSetIndex >= wordSets.length - 1) {
+        console.log('모든 세트 완료 - 추후 quickdraw-result.html로 이동 예정');
+        // TODO: 결과 화면으로 이동 로직 연결 (백엔드/라우팅 시점에 구현)
+        return;
+      }
+
+      wordsRowEl.classList.add('slide-out-left');
+
+      function handleOutEnd(e) {
+        if (e.animationName !== 'slideOutLeft') return;
+        wordsRowEl.removeEventListener('animationend', handleOutEnd);
+        wordsRowEl.classList.remove('slide-out-left');
+
+        // 다음 세트로 인덱스 업데이트
+        currentSetIndex += 1;
+        currentWordIndex = 0;
+        renderCurrentSet();
+
+        wordsRowEl.classList.add('slide-in-right');
+        wordsRowEl.addEventListener('animationend', function handleInEnd(ev) {
+          if (ev.animationName !== 'slideInRight') return;
+          wordsRowEl.removeEventListener('animationend', handleInEnd);
+          wordsRowEl.classList.remove('slide-in-right');
+        });
+      }
+
+      wordsRowEl.addEventListener('animationend', handleOutEnd);
+    }
+
+    // 사용자가 동작한 결과를 반영하는 함수
+    function handleResult(isCorrect) {
+      const words = wordSets[currentSetIndex];
+      const totalWords = words.length;
+      const wordSpans = wordsRowEl.querySelectorAll('.word');
+
+      if (currentWordIndex >= totalWords) {
+        // 이미 세트 끝
+        return;
+      }
+
+      const currentSpan = wordSpans[currentWordIndex];
+      currentSpan.classList.remove('word--current', 'word--pending');
+      currentSpan.classList.add(isCorrect ? 'word--ok' : 'word--wrong');
+
+      currentWordIndex += 1;
+      startTimer(); // 각 단어마다 타이머를 다시 시작
+
+      if (currentWordIndex < totalWords) {
+        const nextSpan = wordSpans[currentWordIndex];
+        nextSpan.classList.remove('word--pending');
+        nextSpan.classList.add('word--current');
+        wordIndexEl.textContent = currentWordIndex + 1;
+      } else {
+        // 세트 종료 → 다음 세트로 넘어가기
+        wordIndexEl.textContent = totalWords;
+        setTimeout(goToNextSet, 350); // 살짝 텀 두고 전환
+      }
+    }
+
+    // 7초 타이머 게이지
+    const timerFill = document.getElementById('timerFill');
+
+    function startTimer() {
+      if (!timerFill) return;
+      timerFill.style.transition = 'none';
+      timerFill.style.width = '100%';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          timerFill.style.transition = 'width 7s linear';
+          timerFill.style.width = '0%';
+        });
+      });
+    }
+
+    // 초기 렌더
+    renderCurrentSet();
+    startTimer();
+
+    // ===== 테스트용 버튼: 실제 연동 시에는 삭제/대체 =====
+    document.getElementById('btnTestCorrect').addEventListener('click', () => {
+      handleResult(true);
+    });
+    document.getElementById('btnTestWrong').addEventListener('click', () => {
+      handleResult(false);
+    });
+  </script>
+</body>
+
+</html>

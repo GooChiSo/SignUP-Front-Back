@@ -442,6 +442,72 @@
       }
     }
 
+    .feedback-bar {
+      position: absolute;
+      left: 50%;
+      bottom: 52px;
+      /* 조금 더 위로 올림 */
+      transform: translateX(-50%) translateY(6px) scale(0.97);
+      padding: 11px 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+      font-size: 16px;
+      /* 살짝 더 크게 */
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      max-width: min(580px, 82vw);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      z-index: 15;
+      overflow: visible;
+      /* 주변 이펙트가 자연스럽게 보이도록 */
+    }
+
+    .feedback-bar::before,
+    .feedback-bar::after {
+      content: "";
+      position: absolute;
+      inset: -6px -16px;
+      border-radius: 999px;
+      border: 2px solid rgba(44, 155, 85, 0.45);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .feedback-bar.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .feedback-bar.show::before {
+      animation: fb-ring 620ms ease-out forwards;
+    }
+
+    .feedback-bar.show::after {
+      animation: fb-ring 820ms ease-out forwards;
+      animation-delay: 80ms;
+    }
+
+    @keyframes fb-ring {
+      0% {
+        opacity: 0.4;
+        transform: scale(0.8) translateY(14px);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.02) translateY(0);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.18) translateY(-6px);
+      }
+    }
+
     /* 원형 타이머 오버레이 (아바타 쪽만 덮음) */
     .countdown {
       position: absolute;
@@ -829,6 +895,9 @@
       <!-- 중앙 판정 & 점수 플로팅 -->
       <div class="feedback" id="feedback">Perfect!</div>
       <div class="pts" id="pts">+30pt</div>
+      <div class="feedback-bar" id="textFeedback">
+        피드백이 들어갈 부분입니다. 피드백이 들어갈 부분입니다.
+      </div>
     </section>
   </div>
 
@@ -870,7 +939,6 @@
       <div class="row" style="margin-top:16px;">
         <button class="m-btn primary" id="againBtn">다시하기</button>
         <button class="m-btn secondary" onclick="location.href='index.html'">홈으로</button>
-        <button class="m-btn secondary" onclick="location.href='records.html'">기록 보기</button>
       </div>
     </div>
   </div>
@@ -932,6 +1000,23 @@
       feedbackEl.classList.remove('show');
     });
     const ptsEl = document.getElementById('pts');
+
+    const textFeedbackEl = document.getElementById('textFeedback');
+    let textFeedbackTimeout = null;
+
+    function showTextFeedback(text) {
+      if (!textFeedbackEl) return;
+      if (textFeedbackTimeout) {
+        clearTimeout(textFeedbackTimeout);
+        textFeedbackTimeout = null;
+      }
+      textFeedbackEl.textContent = text;
+      textFeedbackEl.classList.add('show');
+      textFeedbackTimeout = setTimeout(() => {
+        textFeedbackEl.classList.remove('show');
+        textFeedbackTimeout = null;
+      }, 3000); // 3초 동안 보여준 후 사라짐
+    }
 
     const countdown = document.getElementById('countdown');
     const dialFg = document.getElementById('dialFg');
@@ -1105,10 +1190,15 @@
       animateScoreCombo(prevScore, totalScore, prevCombo, combo);
       renderDots();
 
-      // 다음 라운드 or 종료
+      // 다음 라운드 or 종료: 판정 이펙트(약 1초) 후 피드백 3초 노출
       setTimeout(() => {
-        if (round >= TOTAL_ROUNDS) endGame();
-        else nextRound();
+        // TODO: 백엔드 연동 시, 실제 피드백 문구를 여기에 넣으면 됨
+        showTextFeedback('피드백이 들어갈 부분입니다. 피드백이 들어갈 부분입니다.');
+
+        setTimeout(() => {
+          if (round >= TOTAL_ROUNDS) endGame();
+          else nextRound();
+        }, 3000); // 피드백 읽을 시간 3초 제공 후 진행
       }, 950);
     }
 

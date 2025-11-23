@@ -46,6 +46,7 @@
       --muted: #6c8f7f;
       --green: #2c9b55;
       --red: #ef4444;
+      --yellow: #f5a623;
       --shadow: 0 14px 28px rgba(0, 0, 0, .12), 0 10px 10px rgba(0, 0, 0, .08);
       --radius: 14px;
     }
@@ -111,6 +112,7 @@
       padding: 10px 16px;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 10px 26px rgba(0, 0, 0, .08);
+      position: relative;
     }
 
     .words-row {
@@ -121,6 +123,87 @@
       font-weight: 900;
       letter-spacing: .04em;
       transition: transform .22s ease, opacity .22s ease;
+    }
+
+    .words-row.hidden {
+      visibility: hidden;
+      /* 공간은 유지하면서 화면에서만 안 보이게 */
+    }
+
+    .sentence-row {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      opacity: 0;
+      font-size: clamp(18px, 3vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--title);
+      white-space: nowrap;
+      pointer-events: none;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    .sentence-row--ok {
+      color: var(--green);
+    }
+
+    .sentence-row--mixed {
+      color: var(--yellow);
+    }
+
+    .sentence-row--wrong {
+      color: var(--red);
+    }
+
+    .sentence-row.show {
+      animation: sentencePop 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .words-row.merging .word {
+      animation: wordMerge 450ms ease-out forwards;
+    }
+
+    .words-row.merging .word:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    .words-row.merging .word:nth-child(2) {
+      animation-delay: 70ms;
+    }
+
+    .words-row.merging .word:nth-child(3) {
+      animation-delay: 140ms;
+    }
+
+    @keyframes wordMerge {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-8px) scale(0.6);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sentencePop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+
+      60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
 
     .word {
@@ -210,6 +293,14 @@
       animation: slideInRight 260ms ease forwards;
     }
 
+    .sentence-row.slide-out-left {
+      animation: sentenceSlideOutLeft 260ms ease forwards;
+    }
+
+    .sentence-row.slide-in-right {
+      animation: slideInRight 260ms ease forwards;
+    }
+
     @keyframes slideOutLeft {
       0% {
         transform: translateX(0);
@@ -218,6 +309,18 @@
 
       100% {
         transform: translateX(-40px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sentenceSlideOutLeft {
+      0% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-65%, -50%);
         opacity: 0;
       }
     }
@@ -271,6 +374,9 @@
         <div class="words-row" id="wordsRow">
           <!-- 단어 세트가 JS로 렌더링됩니다 -->
         </div>
+        <div class="sentence-row" id="sentenceRow">
+          <!-- 세 단어가 합쳐진 예시 문장이 표시됩니다 -->
+        </div>
       </div>
 
       <div class="set-info">
@@ -298,12 +404,21 @@
     // ===== 더미 단어 세트 =====
     // 실제로는 서버/백엔드에서 세트별 단어 목록을 받아서 이 구조를 채우면 됩니다.
     const wordSets = [
-      ['단어1', '단어2', '단어3', '단어4', '단어5', '단어6'],
-      ['단어7', '단어8', '단어9', '단어10', '단어11', '단어12'],
-      ['단어13', '단어14', '단어15', '단어16', '단어17', '단어18'],
-      ['단어19', '단어20', '단어21', '단어22', '단어23', '단어24'],
-      ['단어25', '단어26', '단어27', '단어28', '단어29', '단어30'],
-      ['단어31', '단어32', '단어33', '단어34', '단어35', '단어36'],
+      ['단어1', '단어2', '단어3'],
+      ['단어4', '단어5', '단어6'],
+      ['단어7', '단어8', '단어9'],
+      ['단어10', '단어11', '단어12'],
+      ['단어13', '단어14', '단어15'],
+      ['단어16', '단어17', '단어18'],
+    ];
+
+    const sentencesForSets = [
+      '팔을 때려서 당황했어요',
+      '예시 문장 2입니다.',
+      '예시 문장 3입니다.',
+      '예시 문장 4입니다.',
+      '예시 문장 5입니다.',
+      '예시 문장 6입니다.',
     ];
 
     const wordsRowEl = document.getElementById('wordsRow');
@@ -311,6 +426,7 @@
     const setCountEl = document.getElementById('setCount');
     const wordIndexEl = document.getElementById('wordIndex');
     const wordCountEl = document.getElementById('wordCount');
+    const sentenceEl = document.getElementById('sentenceRow');
 
     setCountEl.textContent = wordSets.length;
 
@@ -320,6 +436,8 @@
     function renderCurrentSet() {
       const words = wordSets[currentSetIndex];
       wordsRowEl.innerHTML = '';
+      wordsRowEl.classList.remove('hidden'); // 이전 세트에서 숨겼다면 다시 표시
+
       words.forEach((w, i) => {
         const span = document.createElement('span');
         span.textContent = w;
@@ -340,32 +458,27 @@
     // 세트 전환 애니메이션 처리
     function goToNextSet() {
       if (currentSetIndex >= wordSets.length - 1) {
-        console.log('모든 세트 완료 - 추후 quickdraw-result.html로 이동 예정');
-        // TODO: 결과 화면으로 이동 로직 연결 (백엔드/라우팅 시점에 구현)
+        console.log('모든 세트 완료 - 결과 화면으로 이동 (safe redirect)');
+        setTimeout(() => {
+          window.location.href = './quickdraw-result.html';
+        }, 80); // DOM 업데이트 후 안전하게 이동
         return;
       }
 
-      wordsRowEl.classList.add('slide-out-left');
+      // 다음 세트로 인덱스 업데이트
+      currentSetIndex += 1;
+      currentWordIndex = 0;
+      renderCurrentSet();
+      startTimer();
 
-      function handleOutEnd(e) {
-        if (e.animationName !== 'slideOutLeft') return;
-        wordsRowEl.removeEventListener('animationend', handleOutEnd);
-        wordsRowEl.classList.remove('slide-out-left');
-
-        // 다음 세트로 인덱스 업데이트
-        currentSetIndex += 1;
-        currentWordIndex = 0;
-        renderCurrentSet();
-
-        wordsRowEl.classList.add('slide-in-right');
-        wordsRowEl.addEventListener('animationend', function handleInEnd(ev) {
-          if (ev.animationName !== 'slideInRight') return;
-          wordsRowEl.removeEventListener('animationend', handleInEnd);
-          wordsRowEl.classList.remove('slide-in-right');
-        });
+      // 새 세트 단어들을 오른쪽에서 슬라이드 인
+      wordsRowEl.classList.add('slide-in-right');
+      function handleInEnd(ev) {
+        if (ev.animationName !== 'slideInRight') return;
+        wordsRowEl.removeEventListener('animationend', handleInEnd);
+        wordsRowEl.classList.remove('slide-in-right');
       }
-
-      wordsRowEl.addEventListener('animationend', handleOutEnd);
+      wordsRowEl.addEventListener('animationend', handleInEnd);
     }
 
     // 사용자가 동작한 결과를 반영하는 함수
@@ -384,18 +497,107 @@
       currentSpan.classList.add(isCorrect ? 'word--ok' : 'word--wrong');
 
       currentWordIndex += 1;
-      startTimer(); // 각 단어마다 타이머를 다시 시작
 
       if (currentWordIndex < totalWords) {
+        // 다음 단어로 진행 + 타이머 재시작
         const nextSpan = wordSpans[currentWordIndex];
         nextSpan.classList.remove('word--pending');
         nextSpan.classList.add('word--current');
         wordIndexEl.textContent = currentWordIndex + 1;
+        startTimer();
       } else {
-        // 세트 종료 → 다음 세트로 넘어가기
+        // 세트 종료: 단어들이 중앙으로 모여서 예시 문장으로 변신
         wordIndexEl.textContent = totalWords;
-        setTimeout(goToNextSet, 350); // 살짝 텀 두고 전환
+        playSetSentenceAnimation();
       }
+    }
+
+    function playSetSentenceAnimation() {
+      // 세트가 끝나면 타이머는 멈추도록 처리
+      stopTimer();
+
+      const words = wordSets[currentSetIndex];
+      const wordSpans = wordsRowEl.querySelectorAll('.word');
+
+      // 세트의 정답/오답 상태를 집계하여 문장 색상을 결정
+      let hasOk = false;
+      let hasWrong = false;
+      wordSpans.forEach(span => {
+        if (span.classList.contains('word--ok')) hasOk = true;
+        if (span.classList.contains('word--wrong')) hasWrong = true;
+      });
+
+      let sentenceColorClass = '';
+      if (hasOk && !hasWrong) {
+        // 전부 정답
+        sentenceColorClass = 'sentence-row--ok';
+      } else if (!hasOk && hasWrong) {
+        // 전부 오답
+        sentenceColorClass = 'sentence-row--wrong';
+      } else if (hasOk && hasWrong) {
+        // 일부만 맞춤
+        sentenceColorClass = 'sentence-row--mixed';
+      }
+
+      // 세트에 대응하는 문장, 없으면 단어를 공백으로 이어붙이기
+      const sentence =
+        (sentencesForSets && sentencesForSets[currentSetIndex]) ?
+          sentencesForSets[currentSetIndex] :
+          words.join(' ');
+
+      if (!sentenceEl) {
+        // sentenceEl이 없으면 바로 다음 세트로 진행
+        setTimeout(goToNextSet, 400);
+        return;
+      }
+
+      // 단어들이 중앙으로 모이는 느낌의 머지 애니메이션
+      wordsRowEl.classList.add('merging');
+
+      // 문장 텍스트 및 색상 클래스 설정
+      sentenceEl.textContent = sentence;
+      sentenceEl.classList.remove('show', 'sentence-row--ok', 'sentence-row--mixed', 'sentence-row--wrong');
+      if (sentenceColorClass) {
+        sentenceEl.classList.add(sentenceColorClass);
+      }
+
+      const mergeDuration = 450;
+      const extraHold = 900; // 문장 보여주는 시간 (추가 딜레이)
+
+      // 단어 머지 애니메이션이 어느 정도 진행된 후 문장 팝업
+      setTimeout(() => {
+        sentenceEl.classList.add('show');
+      }, mergeDuration - 150);
+
+      // 문장을 잠깐 보여준 뒤, 문장은 왼쪽으로 슬라이드 아웃
+      // 애니메이션이 끝난 다음에 다음 세트 단어들이 나타나도록 처리
+      setTimeout(() => {
+        wordsRowEl.classList.remove('merging');
+        wordsRowEl.classList.add('hidden'); // 단어는 레이아웃만 유지하고 화면에서는 숨김
+
+        if (!sentenceEl) {
+          // sentenceEl이 없으면 기존 로직대로 바로 다음 세트로
+          goToNextSet();
+          return;
+        }
+
+        // 문장 슬라이드 아웃 준비
+        sentenceEl.classList.remove('show');
+        sentenceEl.classList.add('slide-out-left');
+
+        function handleSentenceOutEnd(e) {
+          if (e.animationName !== 'sentenceSlideOutLeft') return;
+          sentenceEl.removeEventListener('animationend', handleSentenceOutEnd);
+          sentenceEl.classList.remove('slide-out-left');
+          sentenceEl.textContent = '';
+          sentenceEl.classList.remove('sentence-row--ok', 'sentence-row--mixed', 'sentence-row--wrong');
+
+          // 문장이 완전히 사라진 뒤에 다음 세트로 이동 (마지막 세트면 결과 화면으로 이동)
+          goToNextSet();
+        }
+
+        sentenceEl.addEventListener('animationend', handleSentenceOutEnd);
+      }, mergeDuration + extraHold);
     }
 
     // 7초 타이머 게이지
@@ -412,6 +614,13 @@
           timerFill.style.width = '0%';
         });
       });
+    }
+
+    function stopTimer() {
+      if (!timerFill) return;
+      const currentWidth = getComputedStyle(timerFill).width;
+      timerFill.style.transition = 'none';
+      timerFill.style.width = currentWidth; // 현재 상태에서 멈추도록 고정
     }
 
     // 초기 렌더

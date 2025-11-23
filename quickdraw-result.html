@@ -5,266 +5,742 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>퀵드로우 결과 — SIGN UP!</title>
+  <!-- Pretendard -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
   <style>
     :root {
       --bg: #eefaf2;
+      --card: #ffffff;
       --title: #2f8057;
-      --muted: #6a8f80;
-      --ink: #0b0f0d;
-      --green: #2c9b55;
-      --red: #ef4444;
+      --text: #356a55;
+      --muted: #6c8f7f;
+      --green: #22c55e;
       --orange: #f59e0b;
-      --gray: #f3f5f4;
+      --red: #ef4444;
+      --shadow: 0 14px 28px rgba(0, 0, 0, .12), 0 10px 10px rgba(0, 0, 0, .08);
+      --radius: 14px;
     }
 
     * {
-      box-sizing: border-box
+      box-sizing: border-box;
     }
 
     html,
     body {
-      height: 100%
+      height: 100%;
     }
 
     body {
       margin: 0;
-      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
-      background: linear-gradient(180deg, #f7fff9 0%, var(--bg) 100%);
-      color: var(--ink);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      min-height: 100vh;
+      font-family: Pretendard, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 50% 0%, #f5fff9 0%, var(--bg) 60%) fixed,
+        linear-gradient(0deg, #f6fff8, var(--bg)) fixed;
     }
 
-    header {
-      padding: 36px 24px 8px;
-      text-align: center
+    .frame {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 3vw, 40px);
     }
 
-    .h1 {
-      margin: 0 0 6px;
-      font-size: 40px;
-      font-weight: 1000;
-      color: var(--ink)
+    .result-panel {
+      width: min(1100px, 94vw);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 26px 26px 22px;
+      animation: slideDown .45s cubic-bezier(.18, .89, .32, 1.16) both;
     }
 
-    .sub {
-      margin: 0 0 18px;
+    @keyframes slideDown {
+      0% {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+
+    .result-title {
+      margin: 0;
+      font-size: clamp(24px, 3.4vw, 30px);
+      font-weight: 900;
+      color: var(--title);
+    }
+
+    .result-sub {
+      margin: 0;
+      font-size: 13px;
       color: var(--muted);
-      font-weight: 700
     }
 
-    .grid {
-      padding: 10px 24px 28px;
+    .summary {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 36px;
-      max-width: 1200px;
-      width: 92vw;
-      margin: 0 auto;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
     }
 
-    .card {
-      background: var(--gray);
-      border-radius: 16px;
-      padding: 26px 22px;
+    .set-card {
+      background: #f5faf7;
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      border: 1px solid rgba(47, 128, 87, 0.08);
+      aspect-ratio: 3 / 2;
+      /* 조금 더 정사각형에 가까운 비율 */
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 26px rgba(0, 0, 0, .10);
-      transition: transform .15s ease;
     }
 
-    .card:hover {
-      transform: translateY(-2px)
+    .set-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, .12);
+      background: #f0f8f3;
     }
 
-    .word {
-      font-size: 44px;
-      font-weight: 1000;
-      line-height: 1.12;
-      margin: 0 0 36px;
-      color: var(--ink);
+    .set-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
     }
 
-    .small {
-      font-size: 15px;
+    .set-card-main {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 4px 2px;
+    }
+
+    .set-label {
+      font-weight: 800;
+      color: var(--title);
+    }
+
+    .set-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      /* 동그라미를 조금 더 두껍고 크게 보이도록 */
       font-weight: 900;
-      color: #1c1f1e;
-      opacity: .8
+      background: none;
+      border: none;
+      padding: 0;
+      width: auto;
+      height: auto;
     }
 
-    .badge {
-      position: absolute;
-      right: 16px;
-      bottom: 12px;
-      font-weight: 900;
-      font-size: 20px;
-      color: #fff;
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
+    .set-icon.success {
+      color: var(--green);
     }
 
-    .badge.ok {
-      background: var(--green)
+    .set-icon.partial {
+      color: var(--orange);
     }
 
-    /* ◯ */
-    .badge.mid {
-      background: var(--orange)
+    .set-icon.fail {
+      color: var(--red);
     }
 
-    /* △ */
-    .badge.ng {
-      background: var(--red)
-    }
-
-    /* × */
-
-    /* Hover Preview */
-    .preview {
+    .words-line {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, .45);
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      font-size: 20px;
+      /* 단어 크기 조금 더 키움 */
+      line-height: 1.4;
+      justify-content: center;
+      align-content: center;
+      text-align: center;
+      padding: 0 8px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity .2s ease;
+      transition: opacity .15s ease;
     }
 
-    .card:hover .preview {
-      opacity: 1
-    }
-
-    .preview .box {
-      background: #fff;
-      border-radius: 12px;
-      width: min(340px, 80%);
-      padding: 12px;
-      text-align: center;
-    }
-
-    .preview .avatar {
-      height: 160px;
-      background: #e5e8e7;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      color: #4a5a51;
-      font-weight: 900;
-      margin-bottom: 10px;
-    }
-
-    .preview .actions {
+    .sentence-line {
+      position: absolute;
+      inset: 0;
       display: flex;
-      gap: 8px;
-      justify-content: center
-    }
-
-    .action {
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 2px solid #cfe5d7;
-      background: #fff;
-      color: #23653d;
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    footer {
-      display: flex;
+      align-items: center;
       justify-content: center;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1.4;
+      font-weight: 800;
+      padding: 0 8px;
+      opacity: 1;
+      transition: opacity .15s ease;
+    }
+
+    .sentence-line--ok {
+      color: var(--green);
+    }
+
+    .sentence-line--mixed {
+      color: var(--orange);
+    }
+
+    .sentence-line--wrong {
+      color: var(--red);
+    }
+
+    .set-card:hover .sentence-line {
+      opacity: 0;
+    }
+
+    .set-card:hover .words-line {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .word-chip {
+      font-weight: 700;
+    }
+
+    .word-chip.ok {
+      color: var(--green);
+    }
+
+    .word-chip.ng {
+      color: var(--red);
+    }
+
+    .word-chip.pending {
+      color: var(--muted);
+      opacity: .7;
+    }
+
+    .result-footer {
+      display: flex;
+      justify-content: flex-end;
       gap: 10px;
-      padding: 22px
+      margin-top: 10px;
     }
 
     .btn {
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 2px solid #bfe1c9;
-      background: #fff;
-      color: #2f8057;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 0;
+      cursor: pointer;
+      font-size: 13px;
       font-weight: 800;
-      cursor: pointer
+      letter-spacing: .02em;
+      font-family: inherit;
+      transition: transform .1s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
     }
 
-    .btn.primary {
-      background: var(--green);
-      color: #fff;
-      border-color: var(--green)
+    .btn-retry {
+      background: linear-gradient(180deg, #2c9b55, #227446);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-retry:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+    }
+
+    .btn-exit {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid #cfe2d7;
+    }
+
+    .btn-exit:hover {
+      background: #f1f7f3;
+    }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #ffffff;
+      width: min(780px, 94vw);
+      border-radius: 24px;
+      padding: 20px 22px 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      position: relative;
+      animation: slideDown .35s ease-out both;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .modal-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-set-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--title);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--title);
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .chevron-btn {
+      border: none;
+      background: transparent;
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    .chevron-btn:hover {
+      color: var(--title);
+    }
+
+    .video-box-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .video-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .video-word {
+      font-weight: 800;
+      color: var(--title);
+    }
+
+    .video-box {
+      border-radius: 18px;
+      background: #f1f5f9;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      display: grid;
+      place-items: center;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .modal-words {
+      margin-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-word-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .modal-word-chip.ok {
+      color: var(--green);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .modal-word-chip.ng {
+      color: var(--red);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .modal-word-chip.pending {
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    .modal-word-chip.active {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45);
+    }
+
+    @media (max-width: 768px) {
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .summary {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <p class="h1" id="title">0개중 0개를 맞췄어요!</p>
-    <p class="sub">카드를 가리키면(hover) 아바타 미리보기를 볼 수 있어요.</p>
-  </header>
+  <main class="frame">
+    <section class="result-panel">
+      <header class="result-header">
+        <div>
+          <h1 class="result-title">퀵드로우 결과</h1>
+          <p class="result-sub">상자에 마우스를 올려 결과를 확인하고 상자를 클릭해 모범 답안을 확인하세요!</p>
+        </div>
+      </header>
 
-  <main class="grid" id="grid">
-    <!-- JS로 카드 6개 생성 -->
+      <section class="summary" id="summaryGrid">
+        <!-- 세트 요약 카드가 JS로 렌더링됩니다 -->
+      </section>
+
+      <footer class="result-footer">
+        <button class="btn btn-retry" id="btnRetry">다시하기</button>
+        <button class="btn btn-exit" id="btnExit">나가기</button>
+      </footer>
+    </section>
   </main>
 
-  <footer>
-    <a class="btn" href="quickdraw.html">다시 하기</a>
-    <a class="btn primary" href="index.html">홈으로</a>
-  </footer>
+  <!-- 상세 결과 모달 -->
+  <div class="modal-backdrop" id="detailModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalCloseBtn" aria-label="닫기">×</button>
+      <div class="modal-header">
+        <div class="modal-badge">
+          <div class="set-icon" id="modalSetIcon"></div>
+          <span class="modal-set-label" id="modalSetLabel">1/6 세트</span>
+        </div>
 
-  <script>
-    /* 데모 데이터: 6개 카드, 상태 ok/mid/ng */
-    const items = [
-      { word: '나', status: 'mid' },
-      { word: '나', status: 'ng' },
-      { word: '나', status: 'ok' },
-      { word: '나', status: 'mid' },
-      { word: '나', status: 'mid' },
-      { word: '나', status: 'ok' },
-    ];
+      </div>
 
-    function render() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      let ok = 0, mid = 0, ng = 0;
+      <div class="modal-body">
+        <button class="chevron-btn" id="prevSetBtn" aria-label="이전 세트 보기">‹</button>
 
-      items.forEach(it => {
-        ok += it.status === 'ok';
-        mid += it.status === 'mid';
-        ng += it.status === 'ng';
-
-        const card = document.createElement('article');
-        card.className = 'card';
-
-        card.innerHTML = `
-      <h3 class="word">${it.word}</h3>
-      <div class="small">단어</div>
-      <div class="badge ${it.status}">${it.status === 'ok' ? '◯' : it.status === 'mid' ? '△' : '×'}</div>
-      <div class="preview">
-        <div class="box">
-          <div class="avatar">아바타 미리보기</div>
-          <div class="actions">
-            <button class="action">재생</button>
-            <button class="action">다시보기</button>
-            <button class="action">상세</button>
+        <div class="video-box-wrap">
+          <div class="video-label">
+            <span>현재 단어:</span>
+            <span class="video-word" id="currentWordLabel">단어1</span>
+          </div>
+          <div class="video-box" id="videoBox">
+            선택한 단어의 모범 영상
           </div>
         </div>
-      </div>
-    `;
-        grid.appendChild(card);
-      });
 
-      const title = document.getElementById('title');
-      const total = items.length;
-      const correct = ok; // 여기선 ok 갯수를 정답으로 집계
-      title.textContent = `${total}개중 ${correct}개를 맞췄어요!`;
+        <button class="chevron-btn" id="nextSetBtn" aria-label="다음 세트 보기">›</button>
+      </div>
+
+      <div class="modal-words" id="modalWords">
+        <!-- 단어 칩들이 JS로 렌더링됩니다 -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 임의 결과 데이터 (백엔드 연동 전까지는 이걸로 데모) =====
+    // status: 'ok' (맞춤), 'ng' (틀림)
+    const resultData = [
+      {
+        setIndex: 1,
+        words: [
+          { text: '단어1', status: 'ok' },
+          { text: '단어2', status: 'ok' },
+          { text: '단어3', status: 'ok' }
+        ]
+      },
+      {
+        setIndex: 2,
+        words: [
+          { text: '단어4', status: 'ok' },
+          { text: '단어5', status: 'ng' },
+          { text: '단어6', status: 'ok' }
+        ]
+      },
+      {
+        setIndex: 3,
+        words: [
+          { text: '단어7', status: 'ng' },
+          { text: '단어8', status: 'ng' },
+          { text: '단어9', status: 'ng' }
+        ]
+      },
+      {
+        setIndex: 4,
+        words: [
+          { text: '단어10', status: 'ok' },
+          { text: '단어11', status: 'ok' },
+          { text: '단어12', status: 'ng' }
+        ]
+      },
+      {
+        setIndex: 5,
+        words: [
+          { text: '단어13', status: 'ng' },
+          { text: '단어14', status: 'ok' },
+          { text: '단어15', status: 'ok' }
+        ]
+      },
+      {
+        setIndex: 6,
+        words: [
+          { text: '단어16', status: 'ok' },
+          { text: '단어17', status: 'ok' },
+          { text: '단어18', status: 'ng' }
+        ]
+      }
+    ];
+
+    const summaryGrid = document.getElementById('summaryGrid');
+
+    function getSetType(words) {
+      const allOk = words.every(w => w.status === 'ok');
+      const allNg = words.every(w => w.status === 'ng');
+      if (allOk) return 'success';
+      if (allNg) return 'fail';
+      return 'partial';
     }
-    render();
+
+    function getSetIconSVG(type) {
+      if (type === 'success') {
+        return `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3"/>
+          </svg>`;
+      }
+      if (type === 'fail') {
+        return `
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <line x1="6" y1="18" x2="18" y2="6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>`;
+      }
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <polygon points="12,5 20,19 4,19" stroke="currentColor" stroke-width="3" fill="none" stroke-linejoin="round"/>
+        </svg>`;
+    }
+
+    function renderSummary() {
+      summaryGrid.innerHTML = '';
+      resultData.forEach((set, idx) => {
+        const type = getSetType(set.words);
+        const sentenceText = `${set.setIndex}번째 예시로 드는 문장입니다`;
+
+        const card = document.createElement('button');
+        card.className = 'set-card';
+        card.type = 'button';
+        card.dataset.setIndex = idx.toString();
+
+        const header = document.createElement('div');
+        header.className = 'set-card-header';
+
+        const label = document.createElement('span');
+        label.className = 'set-label';
+        label.textContent = `${set.setIndex} / ${resultData.length} 세트`;
+
+        const icon = document.createElement('div');
+        icon.className = `set-icon ${type}`;
+        icon.innerHTML = getSetIconSVG(type);
+
+        header.appendChild(label);
+        header.appendChild(icon);
+
+        // 문장 라인 (기본 뷰)
+        const sentenceLine = document.createElement('div');
+        sentenceLine.className = 'sentence-line';
+        if (type === 'success') {
+          sentenceLine.classList.add('sentence-line--ok');
+        } else if (type === 'fail') {
+          sentenceLine.classList.add('sentence-line--wrong');
+        } else {
+          sentenceLine.classList.add('sentence-line--mixed');
+        }
+        sentenceLine.textContent = sentenceText;
+
+        // 단어 라인 (hover 시에만 보이는 뷰)
+        const wordsLine = document.createElement('div');
+        wordsLine.className = 'words-line';
+
+        set.words.forEach(w => {
+          const span = document.createElement('span');
+          span.textContent = w.text;
+          span.classList.add('word-chip');
+          if (w.status === 'ok') {
+            span.classList.add('ok');
+          } else if (w.status === 'ng') {
+            span.classList.add('ng');
+          } else {
+            span.classList.add('pending');
+          }
+          wordsLine.appendChild(span);
+        });
+
+        const main = document.createElement('div');
+        main.className = 'set-card-main';
+        main.appendChild(sentenceLine);
+        main.appendChild(wordsLine);
+
+        card.appendChild(header);
+        card.appendChild(main);
+        summaryGrid.appendChild(card);
+      });
+    }
+
+    // 모달 관련
+    const backdrop = document.getElementById('detailModalBackdrop');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalSetIcon = document.getElementById('modalSetIcon');
+    const modalSetLabel = document.getElementById('modalSetLabel');
+    const currentWordLabel = document.getElementById('currentWordLabel');
+    const modalWords = document.getElementById('modalWords');
+    const prevSetBtn = document.getElementById('prevSetBtn');
+    const nextSetBtn = document.getElementById('nextSetBtn');
+
+    let currentSetIdx = 0;
+    let currentWordIdx = 0;
+
+    function openModal(setIdx) {
+      currentSetIdx = setIdx;
+      currentWordIdx = 0;
+      renderModalContent();
+      backdrop.classList.add('show');
+    }
+
+    function closeModal() {
+      backdrop.classList.remove('show');
+    }
+
+    function renderModalContent() {
+      const set = resultData[currentSetIdx];
+      const type = getSetType(set.words);
+
+      modalSetIcon.className = `set-icon ${type}`;
+      modalSetIcon.innerHTML = getSetIconSVG(type);
+      modalSetLabel.textContent = `${set.setIndex} / ${resultData.length} 세트`;
+
+      // 단어 라벨
+      const currentWord = set.words[currentWordIdx];
+      currentWordLabel.textContent = currentWord.text;
+
+      // 단어 칩 렌더링
+      modalWords.innerHTML = '';
+      set.words.forEach((w, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.textContent = w.text;
+        chip.classList.add('modal-word-chip');
+        chip.classList.add(w.status === 'ok' ? 'ok' : w.status === 'ng' ? 'ng' : 'pending');
+        if (idx === currentWordIdx) chip.classList.add('active');
+        chip.addEventListener('click', () => {
+          currentWordIdx = idx;
+          renderModalContent();
+        });
+        modalWords.appendChild(chip);
+      });
+    }
+
+    // 요약 카드 클릭 → 모달 열기
+    summaryGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('.set-card');
+      if (!card) return;
+      const idx = Number(card.dataset.setIndex || 0);
+      openModal(idx);
+    });
+
+    modalCloseBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    prevSetBtn.addEventListener('click', () => {
+      currentSetIdx = (currentSetIdx - 1 + resultData.length) % resultData.length;
+      currentWordIdx = 0;
+      renderModalContent();
+    });
+
+    nextSetBtn.addEventListener('click', () => {
+      currentSetIdx = (currentSetIdx + 1) % resultData.length;
+      currentWordIdx = 0;
+      renderModalContent();
+    });
+
+    // 다시하기 / 나가기
+    document.getElementById('btnRetry').addEventListener('click', () => {
+      // 퀵드로우 게임 페이지로 다시 이동
+      window.location.href = 'quickdraw.html';
+    });
+
+    document.getElementById('btnExit').addEventListener('click', () => {
+      // 메인으로
+      window.location.href = 'index.html';
+    });
+
+    // 초기 렌더
+    renderSummary();
   </script>
 </body>
 
